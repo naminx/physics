@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>บทที่ 0: ปฐมบทแห่งคลื่น (The Physics of Mixing)</title>
+
+    <!-- KaTeX -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+      onload="renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });"
+    ></script>
+
+    <!-- CSS Theme: Dark Mode Syntax Highlighting & Applet UI -->
+    <style>
+      :root {
+        --bg-color: #1e1e1e;
+        --text-color: #d4d4d4;
+        --keyword: #c586c0;
+        --concept: #4fc1ff;
+        --string: #ce9178;
+        --comment: #6a9955;
+        --heading: #569cd6;
+        --highlight-bg: #2d2d2d;
+        --applet-bg: #252526;
+        --border-color: #444;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.8;
+        padding: 40px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1,
+      h2 {
+        color: var(--heading);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+        margin-top: 40px;
+      }
+      h1 {
+        font-size: 2.2em;
+      }
+      h2 {
+        font-size: 1.7em;
+      }
+      p {
+        margin-bottom: 16px;
+      }
+
+      .concept {
+        color: var(--concept);
+        font-weight: bold;
+      }
+      .keyword {
+        color: var(--keyword);
+        font-weight: bold;
+      }
+      .comment {
+        color: var(--comment);
+        font-style: italic;
+      }
+
+      .equation-box {
+        text-align: center;
+        margin: 24px 0;
+        padding: 10px;
+        background: var(--applet-bg);
+        border-radius: 6px;
+      }
+
+      /* Applet Styles */
+      .applet-container {
+        background-color: var(--highlight-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 30px 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      }
+      .applet-title {
+        text-align: center;
+        color: #4ec9b0;
+        font-size: 1.2em;
+        margin-bottom: 15px;
+        font-weight: bold;
+      }
+      .canvas-wrapper {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        background: var(--applet-bg);
+        border-radius: 6px;
+        padding: 10px;
+      }
+      canvas {
+        background: #1e1e1e;
+        border: 1px dashed var(--border-color);
+        border-radius: 4px;
+      }
+      .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+      }
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        max-width: 400px;
+      }
+      .control-group label {
+        width: 120px;
+        font-weight: bold;
+        color: var(--concept);
+      }
+      input[type="range"] {
+        flex-grow: 1;
+        cursor: pointer;
+      }
+      .value-display {
+        width: 50px;
+        text-align: right;
+        font-family: monospace;
+        color: #dcdcaa;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      🌊 บทที่ 0: ปฐมบทแห่งคลื่น
+      <span class="comment">(The Physics of Mixing)</span>
+    </h1>
+    <p>
+      ก่อนที่เราจะก้าวเข้าสู่โลกของปริภูมิเวกเตอร์หรือคณิตศาสตร์ควอนตัม
+      เราต้องทำความเข้าใจธรรมชาติพื้นฐานที่สุดของ
+      <span class="string">"คลื่น"</span> เสียก่อน ในบทนี้
+      เราจะมาดูกันว่าคลื่นผสมกันอย่างไร
+      และทำไมเราถึงต้องใช้โครงสร้างข้อมูลแบบพิเศษเพื่อควบคุมมัน
+    </p>
+
+    <h2>
+      🏗️ 0.1 การสร้างรูปร่างจากผลรวม
+      <span class="comment">(Linear Combination)</span>
+    </h2>
+    <p>
+      สมมติว่าเราต้องการสร้างคลื่นที่มีรูปร่างซับซ้อน เช่น
+      <span class="string">"คลื่นรูปสี่เหลี่ยม (Square Wave)"</span> ในธรรมชาติ
+      เราไม่ได้เสกคลื่นสี่เหลี่ยมขึ้นมาดื้อๆ แต่มันเกิดจาก
+      <span class="concept">การแทรกสอด (Interference)</span>
+      ของคลื่นพื้นฐานที่มีความถี่ต่างๆ กันมารวมตัวกัน
+    </p>
+    <p>
+      กระบวนการนำคลื่นย่อยๆ มาบวกผสมกันนี้ เรียกว่า
+      <span class="keyword">การรวมเชิงเส้น (Linear Combination)</span>
+    </p>
+
+    <!-- Applet 1: Fourier Series -->
+    <div class="applet-container">
+      <div class="applet-title">
+        🧪 Applet 1: เครื่องผสมคลื่นฮาร์โมนิก (Square Wave Approximation)
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="canvas-applet1" width="600" height="300"></canvas>
+      </div>
+      <div class="controls">
+        <div class="control-group">
+          <label>จำนวนคลื่น (N):</label>
+          <input
+            type="range"
+            id="slider-n"
+            min="1"
+            max="49"
+            step="2"
+            value="1"
+          />
+          <div class="value-display" id="val-n">1</div>
+        </div>
+      </div>
+      <p
+        class="comment"
+        style="text-align: center; margin-top: 10px; font-size: 0.9em"
+      >
+        ลองเลื่อนสไลเดอร์เพิ่มค่า N ดูสิคะ!
+        ยิ่งบวกคลื่นฮาร์โมนิกย่อยเข้าไปมากเท่าไหร่
+        คลื่นรวมก็ยิ่งกลายเป็นรูปสี่เหลี่ยมมากขึ้นเท่านั้น
+      </p>
+    </div>
+
+    <h2>🧩 0.2 ข้อจำกัดของจำนวนจริง และความจำเป็นของ "เฟส"</h2>
+    <p>
+      จาก Applet 1 เราเห็นแล้วว่าคลื่นสามารถนำมาบวกกันได้
+      แต่การจะผสมคลื่นให้ได้รูปร่างที่ถูกต้องเป๊ะๆ
+      เราต้องสามารถปรับแต่งคลื่นย่อยแต่ละขบวนได้ด้วย หากเราใช้ตัวเลข
+      <span class="keyword">จำนวนจริง ($\mathbb{R}$)</span> เช่น การคูณคลื่นด้วย
+      $2, 0.5,$ หรือ $-1$ สิ่งที่เราทำได้จะมีเพียงแค่การปรับสเกลความสูง
+      (แอมพลิจูด) ให้ใหญ่ขึ้นหรือเล็กลงเท่านั้น
+    </p>
+    <p>
+      แต่ในโลกความเป็นจริง คลื่นมีมิติที่ 2 ที่เรียกว่า
+      <span class="concept">"เฟส (Phase)"</span> หรือจังหวะการเยื้อง
+      หากเราต้องการเลื่อนคลื่นไปทางซ้ายหรือขวา
+      การคูณด้วยจำนวนจริงจะไม่สามารถตอบโจทย์นี้ได้เลย
+      (จำนวนจริงบรรจุข้อมูลไม่พอ!)
+    </p>
+
+    <p>
+      เราจึงจำเป็นต้องอัปเกรดตัวคูณหน้าคลื่นให้เป็น
+      <span class="concept">จำนวนเชิงซ้อนในรูปเชิงขั้ว</span> คือ
+      <span class="keyword">$c_n = A_n e^{i\theta_n}$</span>
+    </p>
+    <p>
+      เมื่อเรานำสัมประสิทธิ์นี้ไปคูณกับฐานคลื่น (สมมติให้เป็น $e^{ix}$)
+      โครงสร้างคณิตศาสตร์จะทำการรวมเฟสให้อัตโนมัติ:
+    </p>
+    <div class="equation-box">
+      $$ (A_n e^{i\theta_n}) \cdot e^{ix} = A_n e^{i(x + \theta_n)} $$
+    </div>
+    <p>
+      หากเราดึงเฉพาะส่วนจริงออกมาวาดกราฟ เราจะได้คลื่นในรูปแบบ $A_n \cos(x +
+      \theta_n)$ ซึ่งหมายความว่า ตัวแปร $A_n$ จะทำหน้าที่ดึงกราฟให้สูงขึ้น
+      และตัวแปร $\theta_n$ จะทำหน้าที่ผลักกราฟให้เลื่อนซ้าย-ขวาได้อย่างอิสระ!
+    </p>
+
+    <!-- Applet 2: Phasor & Wave -->
+    <div class="applet-container">
+      <div class="applet-title">
+        🧪 Applet 2: กายภาพของแอมพลิจูดและเฟส (Complex Coefficient)
+      </div>
+      <div class="canvas-wrapper">
+        <!-- Phasor Circle -->
+        <canvas id="canvas-phasor" width="250" height="250"></canvas>
+        <!-- Waveform -->
+        <canvas id="canvas-wave" width="400" height="250"></canvas>
+      </div>
+      <div class="controls">
+        <div class="control-group">
+          <label>แอมพลิจูด (A):</label>
+          <input
+            type="range"
+            id="slider-a"
+            min="0"
+            max="2"
+            step="0.1"
+            value="1"
+          />
+          <div class="value-display" id="val-a">1.0</div>
+        </div>
+        <div class="control-group">
+          <label>เฟส (θ องศา):</label>
+          <input
+            type="range"
+            id="slider-theta"
+            min="0"
+            max="360"
+            step="1"
+            value="0"
+          />
+          <div class="value-display" id="val-theta">0°</div>
+        </div>
+      </div>
+      <p
+        class="comment"
+        style="text-align: center; margin-top: 10px; font-size: 0.9em"
+      >
+        สังเกตดูนะคะ! เมื่อเลื่อน A รัศมีวงกลมจะเปลี่ยนและคลื่นจะสูงขึ้น
+        แต่เมื่อเลื่อน θ ลูกศรเชิงซ้อน (Phasor) จะ "หมุน" ทำให้คลื่น
+        "เลื่อนซ้าย-ขวา" ได้อย่างอิสระ
+      </p>
+    </div>
+
+    <h2>🚀 0.3 บทส่งท้ายสู่ปริภูมิ</h2>
+    <p>
+      เมื่อเราเข้าใจกายภาพแล้วว่า
+      ระบบที่อธิบายคลื่นได้สมบูรณ์จะต้องรองรับปฏิบัติการ 2 อย่าง คือ
+      <span class="keyword">"การนำคลื่นมาบวกกัน"</span> และ
+      <span class="keyword">"การคูณปรับสเกล/หมุนเฟสด้วยตัวเลขเชิงซ้อน"</span>
+    </p>
+    <p>
+      ในบทต่อไป เราจะไปดูกันว่า
+      โครงสร้างทางคณิตศาสตร์แบบไหนกันที่ถูกสร้างขึ้นมารองรับคุณสมบัติทั้งสองข้อนี้อย่างเป็นระบบ
+      ซึ่งนั่นก็คือสิ่งที่นักคณิตศาสตร์เรียกว่า
+      <span class="concept">"ปริภูมิเวกเตอร์ (Vector Space)"</span> นั่นเอง
+    </p>
+
+    <!-- JavaScript สำหรับวาด Applets -->
+    <script>
+      // ==========================================
+      // Applet 1 Logic: Fourier Series Square Wave
+      // ==========================================
+      const ctx1 = document.getElementById("canvas-applet1").getContext("2d");
+      const sliderN = document.getElementById("slider-n");
+      const valN = document.getElementById("val-n");
+
+      // กำหนดสีสำหรับฮาร์โมนิกย่อย n = 1, 3, 5, 7, 9
+      const harmonicColors = {
+        1: "#ff6b6b", // แดง (n=1)
+        3: "#feca57", // เหลือง (n=3)
+        5: "#1dd1a1", // เขียว (n=5)
+        7: "#c586c0", // ม่วง (n=7)
+        9: "#cccccc", // light gray (n=9)
+      };
+
+      function drawApplet1() {
+        let N = parseInt(sliderN.value);
+        valN.innerText = N;
+        let width = ctx1.canvas.width;
+        let height = ctx1.canvas.height;
+        let centerY = height / 2;
+        let scaleY = 50; // สัดส่วนการขยายแกน Y
+
+        ctx1.clearRect(0, 0, width, height);
+
+        // วาดแกน X
+        ctx1.beginPath();
+        ctx1.moveTo(0, centerY);
+        ctx1.lineTo(width, centerY);
+        ctx1.strokeStyle = "#444";
+        ctx1.lineWidth = 1;
+        ctx1.stroke();
+
+        // 1. วาดคลื่นฮาร์โมนิกย่อยแบบเส้นประ (โชว์สูงสุดแค่ n=9 เพื่อไม่ให้รก)
+        let maxHarmonicToShow = Math.min(N, 9);
+        for (let n = 1; n <= maxHarmonicToShow; n += 2) {
+          ctx1.beginPath();
+          for (let px = 0; px < width; px++) {
+            let x = (px / width) * 4 * Math.PI; // ให้เห็น 2 รอบคลื่น
+            let y = (4 / (Math.PI * n)) * Math.sin(n * x);
+            let py = centerY - y * scaleY;
+
+            if (px === 0) ctx1.moveTo(px, py);
+            else ctx1.lineTo(px, py);
+          }
+          ctx1.strokeStyle = harmonicColors[n];
+          ctx1.lineWidth = 1.5;
+          ctx1.setLineDash([5, 5]); // ตั้งค่าเป็นเส้นประ
+          ctx1.stroke();
+        }
+
+        ctx1.setLineDash([]); // รีเซ็ตเส้นประกลับเป็นเส้นทึบสำหรับคลื่นรวม
+
+        // 2. วาดคลื่นรวม (Linear Combination)
+        ctx1.beginPath();
+        for (let px = 0; px < width; px++) {
+          let x = (px / width) * 4 * Math.PI;
+          let y = 0;
+          for (let n = 1; n <= N; n += 2) {
+            y += (4 / (Math.PI * n)) * Math.sin(n * x);
+          }
+          let py = centerY - y * scaleY;
+
+          if (px === 0) ctx1.moveTo(px, py);
+          else ctx1.lineTo(px, py);
+        }
+        ctx1.strokeStyle = "#4fc1ff"; // สีฟ้าสว่าง (Concept Color)
+        ctx1.lineWidth = 3; // เส้นหนาชัดเจน
+        ctx1.stroke();
+      }
+
+      sliderN.addEventListener("input", drawApplet1);
+      drawApplet1(); // Initial draw
+
+      // ==========================================
+      // Applet 2 Logic: Phasor and Waveform
+      // ==========================================
+      const ctxPhasor = document
+        .getElementById("canvas-phasor")
+        .getContext("2d");
+      const ctxWave = document.getElementById("canvas-wave").getContext("2d");
+      const sliderA = document.getElementById("slider-a");
+      const sliderTheta = document.getElementById("slider-theta");
+      const valA = document.getElementById("val-a");
+      const valTheta = document.getElementById("val-theta");
+
+      function drawApplet2() {
+        let A = parseFloat(sliderA.value);
+        let thetaDeg = parseInt(sliderTheta.value);
+        let thetaRad = thetaDeg * (Math.PI / 180);
+
+        valA.innerText = A.toFixed(1);
+        valTheta.innerText = thetaDeg + "°";
+
+        let pWidth = ctxPhasor.canvas.width;
+        let pHeight = ctxPhasor.canvas.height;
+        let pCenter = pWidth / 2;
+        let radiusScale = 80; // pixels per 1 unit of A
+
+        // 1. Draw Phasor
+        ctxPhasor.clearRect(0, 0, pWidth, pHeight);
+
+        // Axes
+        ctxPhasor.beginPath();
+        ctxPhasor.moveTo(0, pCenter);
+        ctxPhasor.lineTo(pWidth, pCenter); // Real
+        ctxPhasor.moveTo(pCenter, 0);
+        ctxPhasor.lineTo(pCenter, pHeight); // Imaginary
+        ctxPhasor.strokeStyle = "#444";
+        ctxPhasor.lineWidth = 1;
+        ctxPhasor.stroke();
+
+        // Outer max circle reference (A=2)
+        ctxPhasor.beginPath();
+        ctxPhasor.arc(pCenter, pCenter, 2 * radiusScale, 0, 2 * Math.PI);
+        ctxPhasor.strokeStyle = "#333";
+        ctxPhasor.stroke();
+
+        // Phasor arrow
+        let endX = pCenter + A * radiusScale * Math.cos(thetaRad);
+        let endY = pCenter - A * radiusScale * Math.sin(thetaRad); // - because y is down in canvas
+
+        ctxPhasor.beginPath();
+        ctxPhasor.moveTo(pCenter, pCenter);
+        ctxPhasor.lineTo(endX, endY);
+        ctxPhasor.strokeStyle = "#c586c0";
+        ctxPhasor.lineWidth = 3;
+        ctxPhasor.stroke();
+
+        // Dot at end
+        ctxPhasor.beginPath();
+        ctxPhasor.arc(endX, endY, 5, 0, 2 * Math.PI);
+        ctxPhasor.fillStyle = "#c586c0";
+        ctxPhasor.fill();
+
+        // 2. Draw Wave
+        let wWidth = ctxWave.canvas.width;
+        let wHeight = ctxWave.canvas.height;
+        let wCenter = wHeight / 2;
+
+        ctxWave.clearRect(0, 0, wWidth, wHeight);
+
+        // Axes
+        ctxWave.beginPath();
+        ctxWave.moveTo(0, wCenter);
+        ctxWave.lineTo(wWidth, wCenter);
+        ctxWave.strokeStyle = "#444";
+        ctxWave.lineWidth = 1;
+        ctxWave.stroke();
+
+        // Waveform: A * cos(x + theta)
+        ctxWave.beginPath();
+        for (let px = 0; px < wWidth; px++) {
+          let x = (px / wWidth) * 4 * Math.PI; // 0 to 4pi
+          let y = A * Math.cos(x + thetaRad);
+          let py = wCenter - y * radiusScale;
+
+          if (px === 0) ctxWave.moveTo(px, py);
+          else ctxWave.lineTo(px, py);
+        }
+        ctxWave.strokeStyle = "#c586c0";
+        ctxWave.lineWidth = 2.5;
+        ctxWave.stroke();
+      }
+      sliderA.addEventListener("input", drawApplet2);
+      sliderTheta.addEventListener("input", drawApplet2);
+      drawApplet2(); // Initial draw
+    </script>
+  </body>
+</html>
