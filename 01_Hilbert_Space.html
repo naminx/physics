@@ -413,13 +413,23 @@
         \vert{} n \rangle = 0$ เมื่อ $m \neq n$)
       </li>
       <li>
+        <span class="keyword">การรวมสถานะ (Linear Combination):</span>
+        เช่นเดียวกับระบบสปิน สถานะคลื่นรวมใดๆ
+        เกิดจากการนำแกนอ้างอิงเหล่านี้มาบวกผสมกัน
+        เพียงแต่คราวนี้เรามีแกนจำนวนอนันต์ การเขียนผลรวมจึงอยู่ในรูปของอนุกรม:
+        <div class="equation-box">
+          $$\vert{}\psi\rangle = \sum_{n=1}^{\infty} c_n \vert{}n\rangle = c_1
+          \vert{}1\rangle + c_2 \vert{}2\rangle + c_3 \vert{}3\rangle + \dots$$
+        </div>
+      </li>
+      <li>
         <span class="keyword">การวัดขนาดการฉายทับ (Projection):</span>
         สัมประสิทธิ์เชิงซ้อน $c_n$ (ทั้งแอมพลิจูดและเฟส) ที่เราปรับสไลเดอร์ใน
         Applet 2 แท้จริงแล้วก็คือผลลัพธ์จากการเอาฟังก์ชันคลื่นรวม
         $\vert{}\psi\rangle$ ไป
         <span class="string">"ฉายทับ"</span> ลงบนแกนอ้างอิงความถี่ที่ $n$
-        เพื่อวัดดูว่า คลื่นรวมนั้นมีส่วนผสมของความถี่ $n$
-        อยู่มากน้อยแค่ไหนนั่นเอง:
+        เพื่อดึงเอาเฉพาะค่าแอมพลิจูดและเฟสที่เกาะอยู่บนแกนนั้นออกมา (Force
+        Evaluation):
         <div class="equation-box">$$c_n = \langle n \vert{} \psi \rangle$$</div>
       </li>
     </ul>
