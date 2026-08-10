@@ -6,22 +6,25 @@
     <title>บทที่ 0: ปฐมบทแห่งคลื่น (The Physics of Mixing)</title>
 
     <!-- KaTeX สำหรับคอมไพล์สมการคณิตศาสตร์และฟิสิกส์ -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
+    />
+
     <!-- โหลดสคริปต์แกนหลักและส่วนเสริม (เอา defer ออกเพื่อให้โหลดตามลำดับแน่นอน) -->
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
     <!-- สั่ง Render แยกต่างหาก (หลบข้อจำกัดของ htmlpreview) -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            renderMathInElement(document.body, {
-                delimiters: [
-                    {left: '$$', right: '$$', display: true}, // สมการบรรทัดใหม่
-                    {left: '$', right: '$', display: false}   // สมการแทรกในบรรทัด
-                ]
-            });
+      document.addEventListener("DOMContentLoaded", function () {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true }, // สมการบรรทัดใหม่
+            { left: "$", right: "$", display: false }, // สมการแทรกในบรรทัด
+          ],
         });
+      });
     </script>
 
     <!-- CSS Theme: Dark Mode Syntax Highlighting & Applet UI -->
@@ -186,6 +189,18 @@
       <div class="canvas-wrapper">
         <canvas id="canvas-applet1" width="600" height="300"></canvas>
       </div>
+      <!-- เพิ่มกล่องแสดงสมการตรงนี้ค่ะ -->
+      <div
+        id="equation-display"
+        class="equation-box"
+        style="
+          font-size: 1.2em;
+          min-height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      ></div>
       <div class="controls">
         <div class="control-group">
           <label>จำนวนคลื่น (N):</label>
@@ -210,87 +225,227 @@
       </p>
     </div>
 
-    <h2>🧩 0.2 ข้อจำกัดของจำนวนจริง และความจำเป็นของ "เฟส"</h2>
+    <h2>🧩 0.2 กายภาพของเฟส และความสง่างามของสมการออยเลอร์</h2>
     <p>
-      จาก Applet 1 เราเห็นแล้วว่าคลื่นสามารถนำมาบวกกันได้
-      แต่การจะผสมคลื่นให้ได้รูปร่างที่ถูกต้องเป๊ะๆ
-      เราต้องสามารถปรับแต่งคลื่นย่อยแต่ละขบวนได้ด้วย หากเราใช้ตัวเลข
-      <span class="keyword">จำนวนจริง ($\mathbb{R}$)</span> เช่น การคูณคลื่นด้วย
-      $2, 0.5,$ หรือ $-1$ สิ่งที่เราทำได้จะมีเพียงแค่การปรับสเกลความสูง
-      (แอมพลิจูด) ให้ใหญ่ขึ้นหรือเล็กลงเท่านั้น
+      จากหัวข้อ 0.1 เราเห็นการประกอบรูปร่างจากการซ้อนทับความสูงไปแล้ว
+      แต่การจะสร้างรูปคลื่นใดๆ ให้ได้อย่างสมบูรณ์แบบนั้น แค่การปรับสเกลความสูง
+      (แอมพลิจูด) ด้วยจำนวนจริงที่เป็นบวกมันไม่เพียงพอ
+      สิ่งที่จำเป็นขั้นเด็ดขาดคือ เราต้องสามารถ
+      <span class="concept">"เลื่อนคลื่นเยื้องซ้าย-ขวา (Phase Shift)"</span>
+      ได้ด้วย
     </p>
-    <p>
-      แต่ในโลกความเป็นจริง คลื่นมีมิติที่ 2 ที่เรียกว่า
-      <span class="concept">"เฟส (Phase)"</span> หรือจังหวะการเยื้อง
-      หากเราต้องการเลื่อนคลื่นไปทางซ้ายหรือขวา
-      การคูณด้วยจำนวนจริงจะไม่สามารถตอบโจทย์นี้ได้เลย
-      (จำนวนจริงบรรจุข้อมูลไม่พอ!)
-    </p>
-
-    <p>
-      เราจึงจำเป็นต้องอัปเกรดตัวคูณหน้าคลื่นให้เป็น
-      <span class="concept">จำนวนเชิงซ้อนในรูปเชิงขั้ว</span> คือ
-      <span class="keyword">$c_n = A_n e^{i\theta_n}$</span>
-    </p>
-    <p>
-      เมื่อเรานำสัมประสิทธิ์นี้ไปคูณกับฐานคลื่น (สมมติให้เป็น $e^{ix}$)
-      โครงสร้างคณิตศาสตร์จะทำการรวมเฟสให้อัตโนมัติ:
-    </p>
+    <p>สังเกตสมการของคลื่นสี่เหลี่ยมใน Applet 1 ให้ดี:</p>
     <div class="equation-box">
-      $$ (A_n e^{i\theta_n}) \cdot e^{ix} = A_n e^{i(x + \theta_n)} $$
+      $$ \cos(x) + \frac{1}{3}\cos(3x + 180^\circ) + \frac{1}{5}\cos(5x) +
+      \frac{1}{7}\cos(7x + 180^\circ) + \dots $$
     </div>
     <p>
-      หากเราดึงเฉพาะส่วนจริงออกมาวาดกราฟ เราจะได้คลื่นในรูปแบบ $A_n \cos(x +
-      \theta_n)$ ซึ่งหมายความว่า ตัวแปร $A_n$ จะทำหน้าที่ดึงกราฟให้สูงขึ้น
-      และตัวแปร $\theta_n$ จะทำหน้าที่ผลักกราฟให้เลื่อนซ้าย-ขวาได้อย่างอิสระ!
+      เราจะเห็นว่าฮาร์โมนิกที่ 3 และ 7 (รวมถึง 11, 15, ...)
+      จำเป็นต้องถูกดันเฟสให้เยื้องไป $180^\circ$
+      เพื่อให้ยอดคลื่นหักล้างกันจนเกิดเป็นขอบสี่เหลี่ยมตัดตรงที่สมบูรณ์แบบ
     </p>
 
-    <!-- Applet 2: Phasor & Wave -->
+    <!-- Applet 2: Complex Coefficients & Interference (ย้ายมาให้เล่นตรงนี้ตามลอจิก) -->
     <div class="applet-container">
       <div class="applet-title">
-        🧪 Applet 2: กายภาพของแอมพลิจูดและเฟส (Complex Coefficient)
+        🧪 Applet 2: กายภาพของสัมประสิทธิ์ (Phase & Interference)
       </div>
       <div class="canvas-wrapper">
-        <!-- Phasor Circle -->
-        <canvas id="canvas-phasor" width="250" height="250"></canvas>
-        <!-- Waveform -->
-        <canvas id="canvas-wave" width="400" height="250"></canvas>
+        <canvas id="canvas-applet2" width="600" height="300"></canvas>
       </div>
-      <div class="controls">
-        <div class="control-group">
-          <label>แอมพลิจูด (A):</label>
-          <input
-            type="range"
-            id="slider-a"
-            min="0"
-            max="2"
-            step="0.1"
-            value="1"
-          />
-          <div class="value-display" id="val-a">1.0</div>
+
+      <div
+        id="equation-display-2"
+        class="equation-box"
+        style="
+          font-size: 1.1em;
+          min-height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      ></div>
+
+      <div
+        class="controls"
+        style="
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 20px;
+        "
+      >
+        <!-- Harmonic 1 -->
+        <div
+          style="border: 1px solid #ff6b6b; padding: 10px; border-radius: 6px"
+        >
+          <div
+            style="
+              color: #ff6b6b;
+              font-weight: bold;
+              text-align: center;
+              margin-bottom: 5px;
+            "
+          >
+            ฮาร์โมนิก 1 (n=1)
+          </div>
+          <div class="control-group" style="max-width: 250px">
+            <label style="width: 50px">A₁:</label>
+            <input type="range" id="a1" min="0" max="2" step="0.1" value="1" />
+            <div class="value-display" id="val-a1">1.0</div>
+          </div>
+          <div class="control-group" style="max-width: 250px">
+            <label style="width: 50px">θ₁:</label>
+            <input type="range" id="t1" min="0" max="360" step="1" value="0" />
+            <div class="value-display" id="val-t1">0°</div>
+          </div>
         </div>
-        <div class="control-group">
-          <label>เฟส (θ องศา):</label>
-          <input
-            type="range"
-            id="slider-theta"
-            min="0"
-            max="360"
-            step="1"
-            value="0"
-          />
-          <div class="value-display" id="val-theta">0°</div>
+
+        <!-- Harmonic 2 -->
+        <div
+          style="border: 1px solid #feca57; padding: 10px; border-radius: 6px"
+        >
+          <div
+            style="
+              color: #feca57;
+              font-weight: bold;
+              text-align: center;
+              margin-bottom: 5px;
+            "
+          >
+            ฮาร์โมนิก 2 (n=2)
+          </div>
+          <div class="control-group" style="max-width: 250px">
+            <label style="width: 50px">A₂:</label>
+            <input
+              type="range"
+              id="a2"
+              min="0"
+              max="2"
+              step="0.1"
+              value="0.5"
+            />
+            <div class="value-display" id="val-a2">0.5</div>
+          </div>
+          <div class="control-group" style="max-width: 250px">
+            <label style="width: 50px">θ₂:</label>
+            <input type="range" id="t2" min="0" max="360" step="1" value="90" />
+            <div class="value-display" id="val-t2">90°</div>
+          </div>
+        </div>
+
+        <!-- Harmonic 3 -->
+        <div
+          style="border: 1px solid #1dd1a1; padding: 10px; border-radius: 6px"
+        >
+          <div
+            style="
+              color: #1dd1a1;
+              font-weight: bold;
+              text-align: center;
+              margin-bottom: 5px;
+            "
+          >
+            ฮาร์โมนิก 3 (n=3)
+          </div>
+          <div class="control-group" style="max-width: 250px">
+            <label style="width: 50px">A₃:</label>
+            <input
+              type="range"
+              id="a3"
+              min="0"
+              max="2"
+              step="0.1"
+              value="0.5"
+            />
+            <div class="value-display" id="val-a3">0.5</div>
+          </div>
+          <div class="control-group" style="max-width: 250px">
+            <label style="width: 50px">θ₃:</label>
+            <input
+              type="range"
+              id="t3"
+              min="0"
+              max="360"
+              step="1"
+              value="180"
+            />
+            <div class="value-display" id="val-t3">180°</div>
+          </div>
         </div>
       </div>
       <p
         class="comment"
-        style="text-align: center; margin-top: 10px; font-size: 0.9em"
+        style="text-align: center; margin-top: 15px; font-size: 0.9em"
       >
-        สังเกตดูนะคะ! เมื่อเลื่อน A รัศมีวงกลมจะเปลี่ยนและคลื่นจะสูงขึ้น
-        แต่เมื่อเลื่อน θ ลูกศรเชิงซ้อน (Phasor) จะ "หมุน" ทำให้คลื่น
-        "เลื่อนซ้าย-ขวา" ได้อย่างอิสระ
+        💡 ลองปรับเฟส (θ) ของคลื่นย่อยดูสิคะ! จะเห็นว่าเฟสที่เยื้องกันนิดเดียว
+        ส่งผลให้รูปร่างของฟังก์ชันรวมเปลี่ยนไปอย่างสิ้นเชิง
+        เฟสจึงเป็นตัวแปรชี้ขาดของ "รูปร่าง" อย่างแท้จริง
       </p>
     </div>
+
+    <h3>กำแพงทางคณิตศาสตร์: เมื่อการหมุนเฟสทำลาย Linear Combination</h3>
+    <p>
+      หัวใจสำคัญของการผสมคลื่นคือการทำ
+      <span class="concept">Linear Combination</span>
+      ที่เราต้องการนำสัมประสิทธิ์ตัวเลข (Scalar) ไปคูณกับฐานคลื่น (Basis)
+      แต่ละความถี่ตรงๆ เพื่อให้คลื่นนั้นยืดหดหรือเลื่อนเฟสได้อย่างอิสระ
+    </p>
+    <p>
+      คำถามคือ เราจะสร้างตัวคูณมารองรับการเลื่อนเฟส $\theta_n$ ได้อย่างไร?
+      หากเราดันทุรังใช้จำนวนจริง ($\mathbb{R}$) กับฟังก์ชัน $\cos(nx +
+      \theta_n)$ เมื่อกระจายสูตรออกมา มันจะกลายเป็น:
+    </p>
+    <div class="equation-box">
+      $$ \cos(\theta_n)\cos(nx) - \sin(\theta_n)\sin(nx) $$
+    </div>
+    <p>
+      สังเกตไหมคะว่าเกิดอะไรขึ้น? คลื่นฮาร์โมนิกเพียงขบวนเดียว
+      ถูกบีบให้แตกออกเป็น 2 ฐานสมการ (คือ $\cos$ และ $\sin$) สิ่งนี้
+      <span class="keyword">ทำลายโครงสร้างการบวกเวกเตอร์</span>
+      เพราะเราไม่สามารถใช้สัมประสิทธิ์เพียงตัวเดียว ($c_n$)
+      ในการระบุสถานะของคลื่น 1 ความถี่ได้อีกต่อไป
+      การแทรกสอดจะยุ่งเหยิงเพราะแกนอ้างอิงเพิ่มขึ้นเป็นสองเท่า!
+    </p>
+
+    <p>
+      ทางออกที่สง่างามที่สุดคือ เราต้องสร้าง "ตัวคูณ (Scalar)" ชนิดใหม่
+      ที่มีคุณสมบัติในการ "ยืดหด (Scale)" และ "หมุนเฟส (Rotate)"
+      ได้ครบจบในตัวแปรเดียว...
+      ซึ่งสถาปัตยกรรมเดียวในทางคณิตศาสตร์ที่ทำแบบนี้ได้คือ
+      <span class="concept">จำนวนเชิงซ้อน และสมการออยเลอร์ ($e^{inx}$)</span>
+    </p>
+    <p>
+      เมื่อเราเปลี่ยนฐานคลื่นมาเป็น $e^{inx}$
+      และอัปเกรดสัมประสิทธิ์ให้เป็นจำนวนเชิงซ้อน
+      <span class="keyword">$c_n = A_n e^{i\theta_n}$</span>
+      การปรับแต่งคลื่นจะกลับมาอยู่ในรูปแบบ Linear Combination
+      ที่เรียบง่ายและคลีนที่สุดอีกครั้ง:
+    </p>
+    <div class="equation-box">
+      $$ (A_n e^{i\theta_n}) \cdot e^{inx} = A_n e^{i(nx + \theta_n)} $$
+    </div>
+
+    <p>
+      <span class="keyword"
+        >การฉายภาพกลับสู่โลกกายภาพ (The Real Projection):</span
+      ><br />
+      สมการ $A_n e^{i(nx + \theta_n)}$
+      คือสถานะของคลื่นที่สมบูรณ์ในปริภูมิเชิงซ้อน
+      แต่ในโลกความเป็นจริงที่เรามองเห็นหรือวัดค่าได้ มันคือการดึงเอาเฉพาะ
+      <span class="concept">ส่วนจริง (Real Part, $\operatorname{Re}$)</span>
+      ของสมการนี้ออกมาแสดงผล
+      ซึ่งจะคืนค่ากลับมาเป็นฟังก์ชันที่เราคุ้นเคยอย่างพอดี:
+    </p>
+    <div class="equation-box">
+      $$ \operatorname{Re}\left( A_n e^{i(nx + \theta_n)} \right) = A_n \cos(nx
+      + \theta_n) $$
+    </div>
+    <p>
+      จำนวนเชิงซ้อนจึงไม่ใช่คณิตศาสตร์ที่จินตนาการขึ้นมาลอยๆ แต่มันคือ Data
+      Structure ที่ถูกออกแบบมาเพื่อแพ็กข้อมูล "ความสูง" และ "การเลื่อนตำแหน่ง"
+      ไว้ในตัวแปรเดียว เพื่อให้คลื่นสามารถแทรกสอดกันได้อย่างสง่างามที่สุด
+    </p>
 
     <h2>🚀 0.3 บทส่งท้ายสู่ปริภูมิ</h2>
     <p>
@@ -309,20 +464,53 @@
     <!-- JavaScript สำหรับวาด Applets -->
     <script>
       // ==========================================
-      // Applet 1 Logic: Fourier Series Square Wave
+      // Applet 1 Logic: Fourier Series Square Wave (Cosine Basis & Phase Shift)
       // ==========================================
       const ctx1 = document.getElementById("canvas-applet1").getContext("2d");
       const sliderN = document.getElementById("slider-n");
       const valN = document.getElementById("val-n");
+      const eqDisplay = document.getElementById("equation-display");
 
-      // กำหนดสีสำหรับฮาร์โมนิกย่อย n = 1, 3, 5, 7, 9
       const harmonicColors = {
-        1: "#ff6b6b", // แดง (n=1)
-        3: "#feca57", // เหลือง (n=3)
-        5: "#1dd1a1", // เขียว (n=5)
-        7: "#c586c0", // ม่วง (n=7)
-        9: "#cccccc", // light gray (n=9)
+        1: "#ff6b6b",
+        3: "#feca57",
+        5: "#1dd1a1",
+        7: "#c586c0",
+        9: "#cccccc",
       };
+
+      function updateEquation(N) {
+        let eq = "\\textcolor{#4fc1ff}{f(x)} = ";
+        let maxHarmonic = Math.min(N, 9);
+
+        for (let n = 1; n <= maxHarmonic; n += 2) {
+          let color = harmonicColors[n];
+          let term = "";
+
+          // ตรรกะของพี่มิน: ถ้าเป็นฮาร์โมนิกที่ 3, 7 ให้เฟสชิฟต์ 180 องศา (เทียบเท่าการติดลบ)
+          let phaseStr = n % 4 === 3 ? " + 180^\\circ" : "";
+
+          if (n === 1) {
+            term = `\\textcolor{${color}}{\\cos(x)}`;
+          } else {
+            term = `\\textcolor{${color}}{\\frac{1}{${n}}\\cos(${n}x${phaseStr})}`;
+          }
+
+          if (n === 1) {
+            eq += term;
+          } else {
+            eq += " + " + term;
+          }
+        }
+
+        if (N > 9) {
+          eq += " + \\textcolor{#888888}{\\dots}";
+        }
+
+        if (window.katex) {
+          katex.render(eq, eqDisplay, { displayMode: true });
+        }
+      }
 
       function drawApplet1() {
         let N = parseInt(sliderN.value);
@@ -330,7 +518,7 @@
         let width = ctx1.canvas.width;
         let height = ctx1.canvas.height;
         let centerY = height / 2;
-        let scaleY = 50; // สัดส่วนการขยายแกน Y
+        let scaleY = 50;
 
         ctx1.clearRect(0, 0, width, height);
 
@@ -342,13 +530,18 @@
         ctx1.lineWidth = 1;
         ctx1.stroke();
 
-        // 1. วาดคลื่นฮาร์โมนิกย่อยแบบเส้นประ (โชว์สูงสุดแค่ n=9 เพื่อไม่ให้รก)
         let maxHarmonicToShow = Math.min(N, 9);
+
+        // 1. วาดคลื่นฮาร์โมนิกย่อยแบบเส้นประ
         for (let n = 1; n <= maxHarmonicToShow; n += 2) {
           ctx1.beginPath();
+          // คำนวณเฟสเรเดียน: ฮาร์โมนิก 3, 7 ให้บวก Math.PI (180 องศา)
+          let phaseRad = n % 4 === 3 ? Math.PI : 0;
+
           for (let px = 0; px < width; px++) {
-            let x = (px / width) * 4 * Math.PI; // ให้เห็น 2 รอบคลื่น
-            let y = (4 / (Math.PI * n)) * Math.sin(n * x);
+            // เลื่อนกราฟให้ x=0 อยู่ตรงกลางผืนผ้าใบ เพื่อให้เห็นสมมาตรของ Cosine (Even Function) ชัดๆ
+            let x = ((px - width / 2) / width) * 4 * Math.PI;
+            let y = (4 / (Math.PI * n)) * Math.cos(n * x + phaseRad);
             let py = centerY - y * scaleY;
 
             if (px === 0) ctx1.moveTo(px, py);
@@ -356,126 +549,190 @@
           }
           ctx1.strokeStyle = harmonicColors[n];
           ctx1.lineWidth = 1.5;
-          ctx1.setLineDash([5, 5]); // ตั้งค่าเป็นเส้นประ
+          ctx1.setLineDash([5, 5]);
           ctx1.stroke();
         }
 
-        ctx1.setLineDash([]); // รีเซ็ตเส้นประกลับเป็นเส้นทึบสำหรับคลื่นรวม
+        ctx1.setLineDash([]);
 
         // 2. วาดคลื่นรวม (Linear Combination)
         ctx1.beginPath();
         for (let px = 0; px < width; px++) {
-          let x = (px / width) * 4 * Math.PI;
+          let x = ((px - width / 2) / width) * 4 * Math.PI;
           let y = 0;
           for (let n = 1; n <= N; n += 2) {
-            y += (4 / (Math.PI * n)) * Math.sin(n * x);
+            let phaseRad = n % 4 === 3 ? Math.PI : 0;
+            y += (4 / (Math.PI * n)) * Math.cos(n * x + phaseRad);
           }
           let py = centerY - y * scaleY;
 
           if (px === 0) ctx1.moveTo(px, py);
           else ctx1.lineTo(px, py);
         }
-        ctx1.strokeStyle = "#4fc1ff"; // สีฟ้าสว่าง (Concept Color)
-        ctx1.lineWidth = 3; // เส้นหนาชัดเจน
+        ctx1.strokeStyle = "#4fc1ff";
+        ctx1.lineWidth = 3;
         ctx1.stroke();
+
+        updateEquation(N);
       }
 
       sliderN.addEventListener("input", drawApplet1);
-      drawApplet1(); // Initial draw
+
+      document.addEventListener("DOMContentLoaded", function () {
+        drawApplet1();
+      });
 
       // ==========================================
-      // Applet 2 Logic: Phasor and Waveform
+      // Applet 2 Logic: Complex Coefficients & Interference
       // ==========================================
-      const ctxPhasor = document
-        .getElementById("canvas-phasor")
-        .getContext("2d");
-      const ctxWave = document.getElementById("canvas-wave").getContext("2d");
-      const sliderA = document.getElementById("slider-a");
-      const sliderTheta = document.getElementById("slider-theta");
-      const valA = document.getElementById("val-a");
-      const valTheta = document.getElementById("val-theta");
+      const ctx2 = document.getElementById("canvas-applet2").getContext("2d");
+      const eqDisplay2 = document.getElementById("equation-display-2");
+
+      const inputs = {
+        a1: document.getElementById("a1"),
+        t1: document.getElementById("t1"),
+        a2: document.getElementById("a2"),
+        t2: document.getElementById("t2"),
+        a3: document.getElementById("a3"),
+        t3: document.getElementById("t3"),
+      };
+
+      const displays = {
+        a1: document.getElementById("val-a1"),
+        t1: document.getElementById("val-t1"),
+        a2: document.getElementById("val-a2"),
+        t2: document.getElementById("val-t2"),
+        a3: document.getElementById("val-a3"),
+        t3: document.getElementById("val-t3"),
+      };
+
+      const waveColors = { 1: "#ff6b6b", 2: "#feca57", 3: "#1dd1a1" };
+
+      function updateEquation2(a1, t1, a2, t2, a3, t3) {
+        let eq = "\\textcolor{#4fc1ff}{f(x)} = ";
+        const terms = [
+          { a: a1, t: t1, n: 1, c: waveColors[1] },
+          { a: a2, t: t2, n: 2, c: waveColors[2] },
+          { a: a3, t: t3, n: 3, c: waveColors[3] },
+        ];
+
+        let activeTerms = [];
+        terms.forEach((term) => {
+          if (term.a > 0) {
+            let phaseStr = "";
+            if (term.t > 0) {
+              // แปลงองศาเป็นแสดงผลแบบง่ายในสมการ
+              phaseStr = ` + ${term.t}^\\circ`;
+            }
+            let nx = term.n === 1 ? "x" : `${term.n}x`;
+            let aStr = term.a === 1 ? "" : term.a.toFixed(1);
+            activeTerms.push(
+              `\\textcolor{${term.c}}{${aStr}\\cos(${nx}${phaseStr})}`,
+            );
+          }
+        });
+
+        if (activeTerms.length === 0) {
+          eq += "0";
+        } else {
+          eq += activeTerms.join(" + ");
+        }
+
+        if (window.katex) {
+          katex.render(eq, eqDisplay2, { displayMode: true });
+        }
+      }
 
       function drawApplet2() {
-        let A = parseFloat(sliderA.value);
-        let thetaDeg = parseInt(sliderTheta.value);
-        let thetaRad = thetaDeg * (Math.PI / 180);
+        let a1 = parseFloat(inputs.a1.value),
+          t1Deg = parseInt(inputs.t1.value);
+        let a2 = parseFloat(inputs.a2.value),
+          t2Deg = parseInt(inputs.t2.value);
+        let a3 = parseFloat(inputs.a3.value),
+          t3Deg = parseInt(inputs.t3.value);
 
-        valA.innerText = A.toFixed(1);
-        valTheta.innerText = thetaDeg + "°";
+        displays.a1.innerText = a1.toFixed(1);
+        displays.t1.innerText = t1Deg + "°";
+        displays.a2.innerText = a2.toFixed(1);
+        displays.t2.innerText = t2Deg + "°";
+        displays.a3.innerText = a3.toFixed(1);
+        displays.t3.innerText = t3Deg + "°";
 
-        let pWidth = ctxPhasor.canvas.width;
-        let pHeight = ctxPhasor.canvas.height;
-        let pCenter = pWidth / 2;
-        let radiusScale = 80; // pixels per 1 unit of A
+        let t1Rad = t1Deg * (Math.PI / 180);
+        let t2Rad = t2Deg * (Math.PI / 180);
+        let t3Rad = t3Deg * (Math.PI / 180);
 
-        // 1. Draw Phasor
-        ctxPhasor.clearRect(0, 0, pWidth, pHeight);
+        let width = ctx2.canvas.width;
+        let height = ctx2.canvas.height;
+        let centerY = height / 2;
+        let scaleY = 40;
 
-        // Axes
-        ctxPhasor.beginPath();
-        ctxPhasor.moveTo(0, pCenter);
-        ctxPhasor.lineTo(pWidth, pCenter); // Real
-        ctxPhasor.moveTo(pCenter, 0);
-        ctxPhasor.lineTo(pCenter, pHeight); // Imaginary
-        ctxPhasor.strokeStyle = "#444";
-        ctxPhasor.lineWidth = 1;
-        ctxPhasor.stroke();
+        ctx2.clearRect(0, 0, width, height);
 
-        // Outer max circle reference (A=2)
-        ctxPhasor.beginPath();
-        ctxPhasor.arc(pCenter, pCenter, 2 * radiusScale, 0, 2 * Math.PI);
-        ctxPhasor.strokeStyle = "#333";
-        ctxPhasor.stroke();
+        // วาดแกน X
+        ctx2.beginPath();
+        ctx2.moveTo(0, centerY);
+        ctx2.lineTo(width, centerY);
+        ctx2.strokeStyle = "#444";
+        ctx2.lineWidth = 1;
+        ctx2.stroke();
 
-        // Phasor arrow
-        let endX = pCenter + A * radiusScale * Math.cos(thetaRad);
-        let endY = pCenter - A * radiusScale * Math.sin(thetaRad); // - because y is down in canvas
+        const harmonics = [
+          { a: a1, t: t1Rad, n: 1, c: waveColors[1] },
+          { a: a2, t: t2Rad, n: 2, c: waveColors[2] },
+          { a: a3, t: t3Rad, n: 3, c: waveColors[3] },
+        ];
 
-        ctxPhasor.beginPath();
-        ctxPhasor.moveTo(pCenter, pCenter);
-        ctxPhasor.lineTo(endX, endY);
-        ctxPhasor.strokeStyle = "#c586c0";
-        ctxPhasor.lineWidth = 3;
-        ctxPhasor.stroke();
+        // 1. วาดคลื่นย่อย (เส้นประ)
+        harmonics.forEach((h) => {
+          if (h.a > 0) {
+            ctx2.beginPath();
+            for (let px = 0; px < width; px++) {
+              // [FIXED]: ปรับแกน x=0 ให้อยู่กึ่งกลางหน้าจอเหมือน Applet 1
+              let x = ((px - width / 2) / width) * 4 * Math.PI;
+              let y = h.a * Math.cos(h.n * x + h.t);
+              let py = centerY - y * scaleY;
 
-        // Dot at end
-        ctxPhasor.beginPath();
-        ctxPhasor.arc(endX, endY, 5, 0, 2 * Math.PI);
-        ctxPhasor.fillStyle = "#c586c0";
-        ctxPhasor.fill();
+              if (px === 0) ctx2.moveTo(px, py);
+              else ctx2.lineTo(px, py);
+            }
+            ctx2.strokeStyle = h.c;
+            ctx2.lineWidth = 1.5;
+            ctx2.setLineDash([5, 5]);
+            ctx2.stroke();
+          }
+        });
 
-        // 2. Draw Wave
-        let wWidth = ctxWave.canvas.width;
-        let wHeight = ctxWave.canvas.height;
-        let wCenter = wHeight / 2;
+        ctx2.setLineDash([]);
 
-        ctxWave.clearRect(0, 0, wWidth, wHeight);
+        // 2. วาดคลื่นรวม (เส้นทึบ)
+        ctx2.beginPath();
+        for (let px = 0; px < width; px++) {
+          // [FIXED]: ปรับแกน x=0 ให้อยู่กึ่งกลางหน้าจอ
+          let x = ((px - width / 2) / width) * 4 * Math.PI;
+          let y = 0;
+          harmonics.forEach((h) => {
+            y += h.a * Math.cos(h.n * x + h.t);
+          });
+          let py = centerY - y * scaleY;
 
-        // Axes
-        ctxWave.beginPath();
-        ctxWave.moveTo(0, wCenter);
-        ctxWave.lineTo(wWidth, wCenter);
-        ctxWave.strokeStyle = "#444";
-        ctxWave.lineWidth = 1;
-        ctxWave.stroke();
-
-        // Waveform: A * cos(x + theta)
-        ctxWave.beginPath();
-        for (let px = 0; px < wWidth; px++) {
-          let x = (px / wWidth) * 4 * Math.PI; // 0 to 4pi
-          let y = A * Math.cos(x + thetaRad);
-          let py = wCenter - y * radiusScale;
-
-          if (px === 0) ctxWave.moveTo(px, py);
-          else ctxWave.lineTo(px, py);
+          if (px === 0) ctx2.moveTo(px, py);
+          else ctx2.lineTo(px, py);
         }
-        ctxWave.strokeStyle = "#c586c0";
-        ctxWave.lineWidth = 2.5;
-        ctxWave.stroke();
+        ctx2.strokeStyle = "#4fc1ff";
+        ctx2.lineWidth = 3;
+        ctx2.stroke();
+
+        updateEquation2(a1, t1Deg, a2, t2Deg, a3, t3Deg);
       }
-      sliderA.addEventListener("input", drawApplet2);
-      sliderTheta.addEventListener("input", drawApplet2);
-      drawApplet2(); // Initial draw
+
+      Object.values(inputs).forEach((input) => {
+        input.addEventListener("input", drawApplet2);
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        drawApplet2();
+      });
     </script>
   </body>
 </html>
