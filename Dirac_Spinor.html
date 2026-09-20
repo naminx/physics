@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ว่าด้วยผลเฉลยของสมการดิแรก และความหมายของ Dirac Spinor</title>
+
+    <!-- KaTeX สำหรับคอมไพล์สมการคณิตศาสตร์และฟิสิกส์ -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+      onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });"
+    ></script>
+
+    <!-- CSS Theme: Dark Mode Syntax Highlighting -->
+    <style>
+      :root {
+        --bg-color: #1e1e1e;
+        --text-color: #d4d4d4;
+        --keyword: #c586c0; /* สีม่วง สำหรับคีย์เวิร์ดสำคัญ */
+        --concept: #4fc1ff; /* สีฟ้าสว่าง สำหรับคอนเซปต์หลัก */
+        --string: #ce9178; /* สีส้ม สำหรับข้อความในเครื่องหมายคำพูด */
+        --comment: #6a9955; /* สีเขียว สำหรับคำอธิบายหรือวงเล็บ */
+        --heading: #569cd6; /* สีฟ้าเข้ม สำหรับหัวข้อ */
+        --highlight-bg: #2d2d2d;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.8;
+        padding: 40px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--heading);
+        border-bottom: 1px solid #444;
+        padding-bottom: 10px;
+        margin-top: 40px;
+      }
+
+      h1 {
+        font-size: 2.2em;
+      }
+      h2 {
+        font-size: 1.7em;
+      }
+      h3 {
+        font-size: 1.3em;
+        color: #4ec9b0;
+        border-bottom: none;
+      }
+
+      p {
+        margin-bottom: 16px;
+      }
+
+      ul,
+      ol {
+        background: var(--highlight-bg);
+        padding: 20px 20px 20px 50px;
+        border-radius: 8px;
+        border-left: 4px solid var(--keyword);
+        margin: 20px 0;
+      }
+
+      li {
+        margin-bottom: 12px;
+      }
+
+      /* Syntax Highlight Classes */
+      .keyword {
+        color: var(--keyword);
+        font-weight: bold;
+      }
+      .concept {
+        color: var(--concept);
+        font-weight: bold;
+      }
+      .string {
+        color: var(--string);
+      }
+      .comment {
+        color: var(--comment);
+        font-style: italic;
+      }
+
+      .equation-box {
+        text-align: center;
+        margin: 24px 0;
+        padding: 10px;
+        background: #252526;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+
+      .summary-box {
+        background-color: #2b3a42;
+        border-left: 4px solid var(--concept);
+        padding: 20px;
+        margin-top: 30px;
+        border-radius: 0 8px 8px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      🧬 ว่าด้วยผลเฉลยของสมการดิแรก
+      <span class="comment">(และความหมายของ Dirac Spinor)</span>
+    </h1>
+
+    <h2>📐 1. จุดตั้งต้น: กายวิภาคของผลเฉลยในปริภูมิ $\mathbb{C}^4$</h2>
+    <p>สมการดิแรกแบบเต็มยศที่ระบุค่าคงที่ครบถ้วนเขียนได้เป็น:</p>
+    <div class="equation-box">
+      $$( i \hbar \gamma^\mu \partial_\mu − mc ) \; \psi = 0$$
+    </div>
+
+    <p>
+      ผลเฉลยคลื่นระนาบ
+      <span class="comment">(Plane wave)</span>
+      สำหรับสถานะของอนุภาคอิสระสามารถเขียนอยู่ในรูป:
+    </p>
+    <div class="equation-box">
+      $$\psi(x) = a \; e^{\mp i(p\cdot x)/\hbar} \; \omega(p)$$
+    </div>
+
+    <p>เราสามารถแยกองค์ประกอบของคำตอบนี้ออกเป็น 3 พจน์หลัก:</p>
+    <ul>
+      <li>
+        <span class="keyword">พจน์ที่ 1 — $a \in \mathbb{C}$:</span>
+        ค่าคงที่เชิงซ้อนที่ทำหน้าที่ปรับบรรทัดฐาน
+        <span class="comment">(Normalization)</span> หาได้จากเงื่อนไขตั้งต้น
+      </li>
+      <li>
+        <span class="keyword">พจน์ที่ 2 — $e^{\mp i(p\cdot x)/\hbar}$:</span>
+        ฟังก์ชันสเกลาร์คลื่นระนาบ ที่บอกทิศทางการเคลื่อนที่ในปริภูมิ-เวลา
+        (เครื่องหมายลบสำหรับอิเล็กตรอน เครื่องหมายบวกสำหรับโพซิตรอน โดยพลังงาน
+        $E > 0$ เสมอ)
+      </li>
+      <li>
+        <span class="keyword">พจน์ที่ 3 — $\omega(p) \in \mathbb{C}^4$:</span>
+        เมทริกซ์คอลัมน์ขนาด $4 \times 1$ เรียกว่า
+        <span class="concept">Dirac spinor</span> (ซึ่งก็คือ $u(p)$
+        สำหรับอิเล็กตรอน หรือ $v(p)$ สำหรับโพซิตรอน)
+        ทำหน้าที่อธิบายสมบัติภายในหรือ <span class="string">"สปิน"</span>
+      </li>
+    </ul>
+
+    <p>
+      ความสัมพันธ์ภายใน $\mathbb{C}^4$ นี้คือหัวใจสำคัญ แม้ spinor จะมี 4 แถว
+      แต่องศาอิสระเชิงเส้น
+      <span class="comment">(Linear degrees of freedom)</span>
+      ของสถานะอนุภาคหนึ่งๆ จะมีแค่
+      <span class="keyword">2 ตัว (บล็อก $2 \times 1$)</span> เสมอ:
+    </p>
+    <ul>
+      <li>
+        <span class="concept">สำหรับอิเล็กตรอน ($u(p)$):</span> องศาอิสระ 2
+        ตัวจะอยู่บล็อกบน ส่วนบล็อกล่างเป็นเพียงฟังก์ชันที่แปรผันตามโมเมนตัม
+      </li>
+      <li>
+        <span class="concept">สำหรับโพซิตรอน ($v(p)$):</span> องศาอิสระ 2
+        ตัวจะอยู่บล็อกล่าง ส่วนบล็อกบนจะเป็นฟังก์ชันที่แปรผันตามโมเมนตัม
+      </li>
+    </ul>
+
+    <p>
+      🌤️
+      <span class="keyword">เปรียบเหมือนเงาตอนเที่ยงวัน:</span>
+      เมื่อไม่มีการเคลื่อนที่ทางอวกาศ ($\vec{p} = 0$) บล็อกที่เป็น
+      <span class="string">"เงา"</span> จะยุบตัวเป็นศูนย์
+      แต่เมื่ออนุภาคมีโมเมนตัมพุ่งไปข้างหน้า
+      เงาจะงอกยาวขึ้นตามสเกลของโมเมนตัมนั้น
+    </p>
+
+    <h2>🔍 2. โครงสร้างของอิเล็กตรอน: การหาองศาอิสระของ $u(p)$</h2>
+    <p>
+      เมื่อพิจารณากิ่งอิเล็กตรอน $e^{−i(p\cdot x)/\hbar}$ อนุพันธ์
+      $\partial_\mu$ จะดึงโมเมนตัม $p_\mu$ ลงมา
+      ทำให้สมการดิแรกในปริภูมิโมเมนตัมอยู่ในรูป:
+    </p>
+    <div class="equation-box">$$(\gamma^\mu p_\mu - mc) \; u(p) = 0$$</div>
+
+    <p>
+      สมการนี้จะมีผลเฉลยที่ไม่เป็นศูนย์
+      <span class="comment">(Non-trivial solution)</span> ก็ต่อเมื่อ
+      $\det(\gamma^\mu p_\mu - mc) = 0$ ซึ่งบังคับให้เกิดความสัมพันธ์ $E^2 =
+      p^2c^2 + m^2c^4$
+    </p>
+
+    <p>
+      เราสามารถเขียนเมทริกซ์ในรูปบล็อก $2 \times 2$
+      <span class="comment">(Dirac representation)</span> โดยแบ่ง $u \in
+      \mathbb{C}^4$ ออกเป็นครึ่งบน $\varphi \in \mathbb{C}^2$ และครึ่งล่าง $\chi
+      \in \mathbb{C}^2$:
+    </p>
+    <div class="equation-box">
+      $$\begin{pmatrix} E/c - mc & -\vec{\sigma} \cdot \vec{p} \\ \vec{\sigma}
+      \cdot \vec{p} & - E/c - mc \end{pmatrix} \begin{pmatrix} \varphi \\ \chi
+      \end{pmatrix} = 0$$
+    </div>
+
+    <p>
+      จากสมการแถวล่าง $(\vec{\sigma} \cdot \vec{p}) \; \varphi = (E/c + mc) \;
+      \chi$ เราสามารถจัดรูปหา $\chi$ ได้ทันที:
+    </p>
+    <div class="equation-box">
+      $$\chi = \dfrac{c \; (\vec{\sigma} \cdot \vec{p})}{E + mc^2} \; \varphi$$
+    </div>
+
+    <p>
+      สมการนี้ชี้ชัดเจนว่า
+      <span class="keyword">$\chi$ (บล็อกล่าง) ไม่ใช่องศาอิสระ</span>
+      แต่มันถูกกำหนดพฤติกรรมโดย $\varphi$ (บล็อกบน) และโมเมนตัม $\vec{p}$
+      ทั้งหมด ตัวแปรอิสระจึงตกอยู่ที่ $\varphi = \begin{pmatrix} \alpha \\ \beta
+      \end{pmatrix}$ เท่านั้น
+    </p>
+
+    <p>โครงสร้างของ $u(p)$ จึงอยู่ในรูป:</p>
+    <div class="equation-box">
+      $$u(p) = N \begin{pmatrix} \varphi \\ \dfrac{c (\vec{\sigma} \cdot
+      \vec{p})}{E + mc^2} \; \varphi \end{pmatrix}$$
+    </div>
+
+    <h2>🔄 3. โครงสร้างของโพซิตรอน: การสลับบล็อกใน $v(p)$</h2>
+    <p>
+      สำหรับกิ่งคำตอบ $e^{+i(p\cdot x)/\hbar}$ เครื่องหมายหน้ามวล $mc$
+      ในสมการจะกลับทิศ:
+    </p>
+    <div class="equation-box">
+      $$\left(\gamma^\mu p_\mu + mc\right) \; v(p) = 0$$
+    </div>
+
+    <p>
+      ผลลัพธ์ทางคณิตศาสตร์คือ โครงสร้างการพึ่งพากันระหว่างบล็อกบนและล่างจะ
+      <span class="keyword">สลับที่กัน</span> เมื่อเทียบกับอิเล็กตรอน
+      หากเรากำหนดให้ตัวดำเนินการทอดเงาคือ $\hat{K}(p) =
+      \dfrac{c\,(\vec{\sigma}\cdot\vec{p})}{E+mc^{2}}$ ตัวเดิม
+      เราจะสรุปโครงสร้างได้ดังนี้:
+    </p>
+    <ul>
+      <li>
+        <span class="concept">$u$ (อิเล็กตรอน):</span> ตัวอิสระอยู่
+        $\mathbb{C}^2$ ด้านบน $\rightarrow$ ทอดเงา $\hat{K}(p)$ ไปตกที่
+        $\mathbb{C}^2$ ด้านล่าง
+      </li>
+      <li>
+        <span class="concept">$v$ (โพซิตรอน):</span> ตัวอิสระอยู่ $\mathbb{C}^2$
+        ด้านล่าง $\rightarrow$ ทอดเงา $\hat{K}(p)$ ไปตกที่ $\mathbb{C}^2$ ด้านบน
+      </li>
+    </ul>
+
+    <p>
+      เพื่อให้เห็นภาพชัดเจน เราจะใช้เวกเตอร์ฐานทางคณิตศาสตร์ $\varphi_\uparrow =
+      \begin{pmatrix} 1 \\ 0 \end{pmatrix}$ และ $\varphi_\downarrow =
+      \begin{pmatrix} 0 \\ 1 \end{pmatrix}$
+    </p>
+
+    <p>
+      สำหรับ
+      <span class="keyword">อิเล็กตรอน ($u$)</span>
+      สถานะทางฟิสิกส์กับฐานคณิตศาสตร์จะตรงกันตรงๆ:
+    </p>
+    <div class="equation-box">
+      $$u^{(1)}(p) = \begin{pmatrix} \varphi_\uparrow \\ \hat{K}(p) \;
+      \varphi_\uparrow \end{pmatrix}, \quad u^{(2)}(p) = \begin{pmatrix}
+      \varphi_\downarrow \\ \hat{K}(p) \; \varphi_\downarrow \end{pmatrix}$$
+    </div>
+
+    <p>
+      แต่สำหรับ
+      <span class="keyword">โพซิตรอน ($v$)</span>
+      มันคือผลเฉลยของกิ่งพลังงานลบที่เราตีความใหม่ให้เป็นปฏิอนุภาคพลังงานบวก
+      ผลจากการตีความนี้ทำให้
+      <span class="concept">เลขควอนตัมทุกอย่างต้องกลับทิศทั้งหมด</span>
+      ทั้งประจุ โมเมนตัม และสปิน
+    </p>
+
+    <p>
+      โมเมนตัมถูกจัดการไปแล้วด้วยเครื่องหมายในเลขชี้กำลัง แต่สปินเราต้อง
+      <span class="string">"สลับป้าย"</span> เองด้วยมือ
+      หากเราต้องการสถานะโพซิตรอนที่มี
+      <span class="keyword">สปินขึ้น</span> ($v^{(1)}$) ในโลกความจริง
+      เราต้องหยิบชิ้นส่วน
+      <span class="keyword">สปินลง</span> ($\varphi_\downarrow$)
+      ในโลกคณิตศาสตร์มาสร้าง เพื่อชดเชยการกลับทิศนี้:
+    </p>
+    <div class="equation-box">
+      $$v^{(1)}(p) = \begin{pmatrix} \hat{K}(p) \; \varphi_\downarrow \\
+      \varphi_\downarrow \end{pmatrix} \leftarrow \text{โพซิตรอนสปินขึ้น}$$<br /><br />
+      $$v^{(2)}(p) = \begin{pmatrix} \hat{K}(p) \; \varphi_\uparrow \\
+      \varphi_\uparrow \end{pmatrix} \leftarrow \text{โพซิตรอนสปินลง}$$
+    </div>
+
+    <p>
+      สรุปง่ายๆ คือ เรามีองศาอิสระ 2 ตัวเหมือนเดิม แค่ย้ายตำแหน่งไปอยู่บล็อกล่าง
+      และต้องจับคู่ฐานคณิตศาสตร์แบบสลับไขว้เพื่อให้ความหมายทางฟิสิกส์ (ดัชนี $1,
+      2$) สอดคล้องกับฝั่งอิเล็กตรอนเป๊ะๆ
+    </p>
+
+    <h2>🛑 4. บทสรุปที่กรอบหยุดนิ่ง: ทำไมถึงเลี่ยง 4 พจน์ไม่ได้?</h2>
+    <p>
+      ผลเฉลยทั่วไปของสมการดิแรกคือการซ้อนทับกัน
+      <span class="comment">(Superposition)</span> ของทั้ง 4 สถานะพื้นฐาน
+      ผ่านการอินทิเกรตในปริภูมิโมเมนตัม:
+    </p>
+    <div class="equation-box">
+      $$\begin{aligned} \psi(x) = \int \bigg[ & \; b_1(p) \; e^{-i(p \cdot
+      x)/\hbar} \; u^{(1)}(p) + \; b_2(p) \; e^{-i(p \cdot x)/\hbar} \;
+      u^{(2)}(p) \\ + & \; d_1^*(p) \; e^{+i(p \cdot x)/\hbar} \; v^{(1)}(p) +
+      \; d_2^*(p) \; e^{+i(p \cdot x)/\hbar} \; v^{(2)}(p) \; \bigg] d^3p
+      \end{aligned}$$
+    </div>
+
+    <p>
+      สัมประสิทธิ์ $b_s(p)$ และ $d_s^*(p)$ ทำหน้าที่เสมือนสัมประสิทธิ์ฟูเรียร์
+      ที่บอกแอมพลิจูดความน่าจะเป็นของแต่ละสถานะ
+    </p>
+
+    <p>
+      <span class="keyword">เหตุผลที่ต้องมี 4 พจน์:</span><br />
+      Dirac spinor เป็นสมาชิกของ $\mathbb{C}^4$
+      การที่จะสร้างปริภูมินี้ได้อย่างสมบูรณ์
+      <span class="comment">(Complete Span)</span>
+      ต้องอาศัยเวกเตอร์ฐานที่เป็นอิสระเชิงเส้นต่อกัน
+      <span class="comment">(Linearly Independent)</span> จำนวน 4 ตัว
+    </p>
+
+    <p>พิสูจน์ได้ทันทีโดยการลดรูปลงไปที่กรอบอนุภาคหยุดนิ่ง ($\vec{p}=0$)</p>
+
+    <p>
+      เมื่อไม่มีโมเมนตัม เมทริกซ์เงา $\hat{K}(0) = 0$
+      ทำให้เวกเตอร์ฐานทั้งสี่ลดรูปเหลือเพียงฐานมาตรฐาน
+      <span class="comment">(Standard Basis)</span> ของ $\mathbb{C}^4$:
+    </p>
+    <div class="equation-box">
+      $$u^{(1)} = \begin{pmatrix} 1 \\ 0 \\ 0 \\ 0 \end{pmatrix}, \quad u^{(2)}
+      = \begin{pmatrix} 0 \\ 1 \\ 0 \\ 0 \end{pmatrix}, \quad v^{(1)} =
+      \begin{pmatrix} 0 \\ 0 \\ 0 \\ 1 \end{pmatrix}, \quad v^{(2)} =
+      \begin{pmatrix} 0 \\ 0 \\ 1 \\ 0 \end{pmatrix}$$
+    </div>
+
+    <p>
+      ถ้าเราใช้แค่อิเล็กตรอน $u(p)$ เราจะกางปริภูมิได้แค่ 2 มิติย่อย
+      <span class="comment">(Subspace)</span>
+      ซึ่งไม่เพียงพอต่อการอธิบายเงื่อนไขเริ่มต้น $\psi(\vec{x},0)$ แบบอิสระใดๆ
+      ได้
+    </p>
+
+    <div class="summary-box">
+      <span class="keyword" style="color: #feca57">Type Isolation:</span><br />
+      การที่คณิตศาสตร์ต้องการ $\mathbb{C}^4$
+      ไม่ได้หมายความว่าอิเล็กตรอนผสมทางกายภาพกับโพซิตรอนได้
+      สถานะทั้งสองถูกตัดขาดจากกัน
+      <span class="comment">(No mixed states)</span> ด้วยกฎ
+      <span class="concept">Charge Superselection Rule</span> ใน QFT
+    </div>
+
+    <h2>📐 5. ฐานทั้งสี่ตั้งฉากกันหรือไม่?</h2>
+    <p>
+      สำหรับค่าโมเมนตัม $p$ ใดๆ เวกเตอร์ $u$ และ $v$
+      <span class="keyword">ไม่ได้ตั้งฉากกันเสมอไป (Not Orthogonal)</span>:
+    </p>
+    <div class="equation-box">
+      $$u^{(r)\dagger}(p) \; v^{(s)}(p) = 2c \; \varphi_r^\dagger(\vec{\sigma}
+      \cdot \vec{p})\varphi_s \neq 0$$
+    </div>
+
+    <p>
+      ในพีชคณิตเชิงเส้น การเป็น Basis ต้องการแค่ความเป็นอิสระเชิงเส้น
+      <span class="comment">(Linear Independence)</span>
+      ไม่ต้องการความเป็นมุมฉาก <span class="comment">(Orthogonality)</span> ทว่า
+      ผลคูณภายใน
+      <span class="comment">(Inner Product)</span> จะกลายเป็นศูนย์จริง ๆ
+      ก็ต่อเมื่อเราจับคู่อนุภาคกับปฏิอนุภาคที่มีโมเมนตัม
+      <span class="concept">สวนทางกัน</span>
+      $\tilde{p} = (E, \; -\vec{p})$:
+    </p>
+    <div class="equation-box">
+      $$u^{(r)\dagger}(p) \; v^{(s)}(\tilde{p}) = 0$$
+    </div>
+  </body>
+</html>
