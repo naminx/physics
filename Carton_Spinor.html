@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cartan's Spinor & Null Flag Isometric Applet</title>
+    <style>
+      :root {
+        --bg: #0b0f17;
+        --panel: #141b2b;
+        --accent: #00f0ff;
+        --text: #e2e8f0;
+        --border: #26334f;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        margin: 0;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+      }
+      /* Layout */
+      #viewport {
+        flex: 1;
+        position: relative;
+      }
+      #sidebar {
+        width: 400px;
+        background: var(--panel);
+        border-left: 1px solid var(--border);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        overflow-y: auto;
+      }
+      /* Canvas */
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      /* Controls */
+      .control-group {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+      .control-group h3 {
+        margin: 0 0 15px 0;
+        font-size: 14px;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .slider-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .slider-row:last-child {
+        margin-bottom: 0;
+      }
+      .slider-label {
+        width: 30px;
+        font-weight: bold;
+        font-family: monospace;
+      }
+      input[type="range"] {
+        flex: 1;
+        accent-color: var(--accent);
+      }
+      .slider-val {
+        width: 45px;
+        text-align: right;
+        font-family: monospace;
+        color: var(--accent);
+      }
+      /* Readout Math */
+      .math-box {
+        font-family: "Courier New", Courier, monospace;
+        background: #000;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #334155;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+      .val-r {
+        color: #ff3366;
+      }
+      .val-i {
+        color: #33ccff;
+      }
+      .val-w {
+        color: #ffcc00;
+      }
+
+      .matrix {
+        display: inline-block;
+        vertical-align: middle;
+        text-align: center;
+        border-left: 1px solid var(--text);
+        border-right: 1px solid var(--text);
+        padding: 0 5px;
+        margin: 0 5px;
+      }
+      .matrix > div {
+        padding: 2px 0;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px dashed var(--border);
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewport">
+      <!-- Three.js Canvas will go here -->
+    </div>
+
+    <div id="sidebar">
+      <h2 style="margin: 0; color: var(--accent)">Cartan's Null Flag</h2>
+      <p style="margin: 0; font-size: 14px; color: #94a3b8">
+        Interactive Riemann Sphere Projection
+      </p>
+
+      <div class="control-group">
+        <h3>Pole Direction (Sphere)</h3>
+        <div class="slider-row">
+          <span class="slider-label">θ</span>
+          <input type="range" id="theta" min="0" max="180" value="60" />
+          <span class="slider-val" id="theta-val">60°</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">φ</span>
+          <input type="range" id="phi" min="0" max="360" value="45" />
+          <span class="slider-val" id="phi-val">45°</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h3>Flag Orientation (Phase)</h3>
+        <div class="slider-row">
+          <span class="slider-label">ω</span>
+          <input type="range" id="omega" min="0" max="720" value="0" />
+          <span class="slider-val" id="omega-val">0°</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h3>Stereographic Projection</h3>
+        <div class="math-box">
+          <div>Z = X + iY = <span id="z-val">...</span></div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h3>Normalized Spinor |s⟩</h3>
+        <div class="math-box">
+          |s⟩ =
+          <div class="matrix">
+            <div id="alpha-val">α</div>
+            <div id="beta-val">β</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <h3>Ratio (α/β)</h3>
+        <div class="math-box">
+          α/β = <span id="ratio-val">...</span> <br /><br />
+          <small style="color: #64748b"
+            >* Note: α/β matches Z on the Complex Plane when ω=0</small
+          >
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+      // --- 1. Math Utils ---
+      function fmtCpx(re, im, digits = 3) {
+        let r = re.toFixed(digits);
+        let i = Math.abs(im).toFixed(digits);
+        let sign = im >= 0 ? "+" : "-";
+        return `${r} ${sign} i${i}`;
+      }
+
+      // --- 2. Setup Three.js Scene ---
+      const vp = document.getElementById("viewport");
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        vp.clientWidth / vp.clientHeight,
+        0.1,
+        100,
+      );
+      camera.position.set(4, 3, 5);
+
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+      renderer.setSize(vp.clientWidth, vp.clientHeight);
+      vp.appendChild(renderer.domElement);
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.target.set(0, 0, 0);
+
+      // --- 3. Scene Objects ---
+
+      // A. Complex Plane (Z = 0)
+      const planeGeo = new THREE.PlaneGeometry(6, 6);
+      const planeMat = new THREE.MeshBasicMaterial({
+        color: 0x1e293b,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+      });
+      const plane = new THREE.Mesh(planeGeo, planeMat);
+      plane.rotation.x = Math.PI / 2;
+      scene.add(plane);
+
+      const gridHelper = new THREE.GridHelper(6, 12, 0x475569, 0x334155);
+      scene.add(gridHelper);
+
+      const axesHelper = new THREE.AxesHelper(3);
+      scene.add(axesHelper);
+
+      // B. Riemann Sphere
+      const sphereGeo = new THREE.SphereGeometry(1, 32, 16);
+      // FIX BUG: depthWrite: false ป้องกันไม่ให้ผิวกระจกของทรงกลมบังธงที่อยู่ข้างใน
+      const sphereMat = new THREE.MeshBasicMaterial({
+        color: 0x3b82f6,
+        transparent: true,
+        opacity: 0.2,
+        wireframe: false,
+        depthWrite: false,
+      });
+      const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+      sphere.position.y = 1;
+      scene.add(sphere);
+
+      const wireGeo = new THREE.SphereGeometry(1, 12, 6);
+      const wireMat = new THREE.MeshBasicMaterial({
+        color: 0x60a5fa,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.05,
+        depthWrite: false,
+      });
+      const wireSphere = new THREE.Mesh(wireGeo, wireMat);
+      wireSphere.position.y = 1;
+      scene.add(wireSphere);
+
+      const northPole = new THREE.Mesh(
+        new THREE.SphereGeometry(0.05),
+        new THREE.MeshBasicMaterial({ color: 0xffffff }),
+      );
+      northPole.position.set(0, 2, 0);
+      scene.add(northPole);
+
+      // C. The Spinor Elements (Grouped for rigid rotations)
+      const spinGroup = new THREE.Group();
+      spinGroup.position.set(0, 1, 0); // Origin at sphere center
+      scene.add(spinGroup);
+
+      // 1. Spin Arrow (From center to surface)
+      const spinArrow = new THREE.ArrowHelper(
+        new THREE.Vector3(0, 1, 0), // Base direction (Up)
+        new THREE.Vector3(0, 0, 0), // Local origin
+        1.0, // Length matches sphere radius
+        0xff3366, // Color
+        0.15,
+        0.1, // Head dimensions
+      );
+      spinGroup.add(spinArrow);
+
+      // 2. Extruded Flag (Sprouting from the middle of the arrow)
+      // FIX BUG: ใช้ ExtrudeGeometry ให้ธงมีความหนา 3D จะได้ไม่ล่องหนเวลามองสันข้าง
+      const flagShape = new THREE.Shape();
+      flagShape.moveTo(0, 0.08);
+      flagShape.lineTo(0.4, 0);
+      flagShape.lineTo(0, -0.08);
+      flagShape.lineTo(0, 0.08);
+
+      const extrudeSettings = { depth: 0.02, bevelEnabled: false };
+      const flagGeo = new THREE.ExtrudeGeometry(flagShape, extrudeSettings);
+      flagGeo.translate(0, 0, -0.01); // จัดให้อยู่กึ่งกลางพอดีแกน Z
+
+      const flagMat = new THREE.MeshBasicMaterial({
+        color: 0xffcc00,
+        side: THREE.DoubleSide,
+      });
+      const flagMesh = new THREE.Mesh(flagGeo, flagMat);
+      flagMesh.position.set(0, 0.5, 0); // ตำแหน่งกึ่งกลางลูกศรพอดี
+      spinGroup.add(flagMesh);
+
+      // 3. Point on Sphere Surface (Red)
+      const spherePt = new THREE.Mesh(
+        new THREE.SphereGeometry(0.06),
+        new THREE.MeshBasicMaterial({ color: 0xff3366 }),
+      );
+      scene.add(spherePt);
+
+      // 4. Projected Point on Complex Plane (Blue)
+      const planePt = new THREE.Mesh(
+        new THREE.SphereGeometry(0.06),
+        new THREE.MeshBasicMaterial({ color: 0x33ccff }),
+      );
+      scene.add(planePt);
+
+      // 5. Projection Line
+      const lineMat = new THREE.LineDashedMaterial({
+        color: 0xffffff,
+        dashSize: 0.1,
+        gapSize: 0.1,
+      });
+      const lineGeo = new THREE.BufferGeometry();
+      const projLine = new THREE.Line(lineGeo, lineMat);
+      scene.add(projLine);
+
+      // --- 4. Logic & Update ---
+      const elTheta = document.getElementById("theta");
+      const elPhi = document.getElementById("phi");
+      const elOmega = document.getElementById("omega");
+
+      const valTheta = document.getElementById("theta-val");
+      const valPhi = document.getElementById("phi-val");
+      const valOmega = document.getElementById("omega-val");
+
+      const outZ = document.getElementById("z-val");
+      const outAlpha = document.getElementById("alpha-val");
+      const outBeta = document.getElementById("beta-val");
+      const outRatio = document.getElementById("ratio-val");
+
+      function updateScene() {
+        let tDeg = parseFloat(elTheta.value);
+        let pDeg = parseFloat(elPhi.value);
+        let wDeg = parseFloat(elOmega.value);
+
+        valTheta.textContent = tDeg + "°";
+        valPhi.textContent = pDeg + "°";
+        valOmega.textContent = wDeg + "°";
+
+        let t = (tDeg * Math.PI) / 180;
+        let p = (pDeg * Math.PI) / 180;
+        let w = (wDeg * Math.PI) / 180;
+
+        // 1. Orient the Spin Vector and Flag using Quaternions
+        let qOmega = new THREE.Quaternion().setFromAxisAngle(
+          new THREE.Vector3(0, 1, 0),
+          w,
+        );
+        let qTheta = new THREE.Quaternion().setFromAxisAngle(
+          new THREE.Vector3(0, 0, 1),
+          -t,
+        );
+        let qPhi = new THREE.Quaternion().setFromAxisAngle(
+          new THREE.Vector3(0, 1, 0),
+          p,
+        );
+
+        let qTotal = new THREE.Quaternion();
+        qTotal.multiplyQuaternions(qPhi, qTheta); // Global orientation
+        qTotal.multiply(qOmega); // Local flag twist
+
+        spinGroup.quaternion.copy(qTotal);
+
+        // 2. Cartesian Coords for Projection
+        let sx = Math.sin(t) * Math.cos(p);
+        let sy = 1 + Math.cos(t);
+        let sz = -Math.sin(t) * Math.sin(p);
+
+        spherePt.position.set(sx, sy, sz);
+
+        // 3. Stereographic Projection
+        let Px = 0,
+          Pz = 0;
+        if (sy < 1.999) {
+          let k = 2 / (2 - sy);
+          Px = k * sx;
+          Pz = k * sz;
+          planePt.position.set(Px, 0, Pz);
+          planePt.visible = true;
+
+          projLine.geometry.setFromPoints([
+            northPole.position,
+            planePt.position,
+          ]);
+          projLine.computeLineDistances();
+          projLine.visible = true;
+        } else {
+          planePt.visible = false;
+          projLine.visible = false;
+          Px = Infinity;
+          Pz = Infinity;
+        }
+
+        // 4. Update Math Readouts
+        if (Px === Infinity) {
+          outZ.innerHTML = `∞`;
+        } else {
+          let zRe = Px;
+          let zIm = -Pz;
+          outZ.innerHTML = `<span class="val-i">${fmtCpx(zRe, zIm)}</span>`;
+        }
+
+        let halfT = t / 2;
+        let halfP = p / 2;
+        let halfW = w / 2;
+
+        let aMag = Math.cos(halfT);
+        let aPhase = -halfP + halfW;
+        let aRe = aMag * Math.cos(aPhase);
+        let aIm = aMag * Math.sin(aPhase);
+
+        let bMag = Math.sin(halfT);
+        let bPhase = halfP + halfW;
+        let bRe = bMag * Math.cos(bPhase);
+        let bIm = bMag * Math.sin(bPhase);
+
+        outAlpha.innerHTML = fmtCpx(aRe, aIm);
+        outBeta.innerHTML = fmtCpx(bRe, bIm);
+
+        if (bMag < 0.0001) {
+          outRatio.innerHTML = `∞`;
+        } else {
+          let denom = bRe * bRe + bIm * bIm;
+          let rRe = (aRe * bRe + aIm * bIm) / denom;
+          let rIm = (aIm * bRe - aRe * bIm) / denom;
+          outRatio.innerHTML = fmtCpx(rRe, rIm);
+        }
+      }
+
+      elTheta.addEventListener("input", updateScene);
+      elPhi.addEventListener("input", updateScene);
+      elOmega.addEventListener("input", updateScene);
+
+      window.addEventListener("resize", () => {
+        camera.aspect = vp.clientWidth / vp.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(vp.clientWidth, vp.clientHeight);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+
+      updateScene();
+      animate();
+    </script>
+  </body>
+</html>
