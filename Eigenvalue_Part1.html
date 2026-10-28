@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eigenvalue (ตอนที่ 1): จากความฉงนสู่การแกะรอย Design Pattern ของกลศาสตร์ควอนตัม</title>
+
+    <!-- KaTeX สำหรับคอมไพล์สมการคณิตศาสตร์และฟิสิกส์ -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+      onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });"
+    ></script>
+
+    <!-- CSS Theme: Dark Mode Syntax Highlighting -->
+    <style>
+      :root {
+        --bg-color: #1e1e1e;
+        --text-color: #d4d4d4;
+        --keyword: #c586c0; /* สีม่วง สำหรับคีย์เวิร์ดสำคัญ */
+        --concept: #4fc1ff; /* สีฟ้าสว่าง สำหรับคอนเซปต์หลัก */
+        --string: #ce9178; /* สีส้ม สำหรับข้อความในเครื่องหมายคำพูด */
+        --comment: #6a9955; /* สีเขียว สำหรับคำอธิบายหรือวงเล็บ */
+        --heading: #569cd6; /* สีฟ้าเข้ม สำหรับหัวข้อ */
+        --highlight-bg: #2d2d2d;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.8;
+        padding: 40px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--heading);
+        border-bottom: 1px solid #444;
+        padding-bottom: 10px;
+        margin-top: 40px;
+      }
+
+      h1 {
+        font-size: 2.2em;
+      }
+      h2 {
+        font-size: 1.7em;
+      }
+      h3 {
+        font-size: 1.3em;
+        color: #4ec9b0;
+        border-bottom: none;
+      }
+
+      p {
+        margin-bottom: 16px;
+      }
+
+      ul,
+      ol {
+        background: var(--highlight-bg);
+        padding: 20px 20px 20px 50px;
+        border-radius: 8px;
+        border-left: 4px solid var(--keyword);
+        margin: 20px 0;
+      }
+
+      li {
+        margin-bottom: 12px;
+      }
+
+      /* Syntax Highlight Classes */
+      .keyword {
+        color: var(--keyword);
+        font-weight: bold;
+      }
+      .concept {
+        color: var(--concept);
+        font-weight: bold;
+      }
+      .string {
+        color: var(--string);
+      }
+      .comment {
+        color: var(--comment);
+        font-style: italic;
+      }
+
+      .equation-box {
+        text-align: center;
+        margin: 24px 0;
+        padding: 10px;
+        background: #252526;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+
+      .summary-box {
+        background-color: #2b3a42;
+        border-left: 4px solid var(--concept);
+        padding: 20px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .nav-box {
+        background-color: #252526;
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-top: 40px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px solid #444;
+        margin: 40px 0;
+      }
+
+      a {
+        color: var(--concept);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--concept);
+      }
+      a:hover {
+        color: #79d4ff;
+        border-bottom: 1px solid #79d4ff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      🔮 Eigenvalue (ตอนที่ 1): จากความฉงนสู่การแกะรอย Design Pattern ของกลศาสตร์ควอนตัม
+    </h1>
+
+    <p>
+      ช่วงเวลาที่ผ่านมา ผมพยายามกลับไปรื้อและทำความเข้าใจกลศาสตร์ควอนตัมใหม่ทั้งหมดตั้งแต่รากฐาน
+      <span class="comment">(First Principles)</span>
+      ซึ่งทำให้ผมต้องย้อนไปทำความเข้าใจโครงสร้างของ
+      <span class="concept">ปริภูมิฮิลเบิร์ต (Hilbert Space)</span>
+      อย่างที่เคยเขียนเป็น Study Note แบ่งปันให้ทุกท่านไปแล้ว
+    </p>
+
+    <p>
+      เป้าหมายต่อไปที่ผมต้องการทะลวงให้ถึงแก่นก็คือ
+      <span class="keyword">เมทริกซ์เพาลี (Pauli Matrices)</span>
+      ผมใช้วิธีซักไซ้ไล่เลียงจากจุดตั้งต้น และตั้งคำถามว่า
+      <span class="string">"ทำไมต้องเป็นแบบนั้น?"</span>
+      ในทุกๆ ประเด็นที่ผมรู้สึกว่าตำราเรียนมักจะกระโดดข้ามขั้น
+      <span class="comment">(Logic Leap)</span>
+      หรือยกมาเป็นข้อเท็จจริงสำเร็จรูปโดยไม่อธิบายที่มา
+      และในการทำความเข้าใจ Pauli Matrices นี้เอง
+      หลักการพื้นฐานด่านแรกที่เราหลีกเลี่ยงไม่ได้เลยก็คือ
+      <span class="concept">สมการค่าเฉพาะ (Eigenvalue Equation)</span>
+      ซึ่งเมื่อพิจารณาอย่างถี่ถ้วนแล้ว กลับเต็มไปด้วยเรื่องน่าฉงนเต็มไปหมด:
+    </p>
+
+    <div class="equation-box">
+      $$\hat{A} \vert \psi \rangle = \lambda \vert \psi \rangle$$
+    </div>
+
+    <p>โดยนิยามทางคณิตศาสตร์ของแต่ละตัวแปรคือ:</p>
+    <ul>
+      <li>
+        <span class="keyword">$\hat{A}$:</span> คือ
+        <span class="concept">ตัวดำเนินการเชิงเส้น (Linear Operator)</span>
+      </li>
+      <li>
+        <span class="keyword">$\vert \psi \rangle$:</span> คือ
+        <span class="concept">เวกเตอร์เฉพาะ (Eigenvector)</span> ของตัวดำเนินการ $\hat{A}$
+        คำว่า <span class="string">"เวกเตอร์"</span> ในที่นี้ไม่ได้จำกัดอยู่แค่ลูกศรหรืออาเรย์ของตัวเลขหลายๆ ตัวเท่านั้น แต่หมายถึงวัตถุทางคณิตศาสตร์ใดๆ ก็ตามที่เป็นสมาชิกของ
+        <span class="keyword">ปริภูมิเวกเตอร์ (Vector Space)</span>
+        คือสามารถนำมาบวกกันได้ และคูณด้วยสเกลาร์ได้ เช่น ฟังก์ชัน $f(x)$ ก็ถือเป็นเวกเตอร์ได้ เพราะสามารถนำไปบวกกับฟังก์ชัน $g(x)$ และคูณด้วยสเกลาร์จำนวนเชิงซ้อน $c \in \mathbb{C}$ ได้
+      </li>
+      <li>
+        <span class="keyword">$\lambda$:</span> คือ
+        <span class="concept">ค่าเฉพาะ (Eigenvalue)</span>
+        ซึ่งเป็นสเกลาร์ที่คู่กับเวกเตอร์เฉพาะตัวนั้น
+      </li>
+    </ul>
+
+    <hr />
+
+    <h2>🎯 จุดเริ่มต้นของความคาใจ</h2>
+
+    <p>
+      สิ่งที่ผมติดใจมาตลอดคือ
+      <strong class="keyword">ทำไมนักฟิสิกส์ถึงใช้สมการพีชคณิตหน้าตาแบบนี้ มาเป็นตัวแทนของ "การวัดปริมาณทางกายภาพ" ในระบบควอนตัม?</strong>
+      โดยตำรามักจะประกาศลอยๆ ให้ $\hat{A}$ เป็นตัวแทนของเครื่องมือวัดปริมาณบางอย่าง, $\vert \psi \rangle$ เป็นตัวแทนของสถานะของระบบ และ $\lambda$ เป็นตัวแทนของ
+      <span class="string">"ค่าที่อ่านได้จริงบนหน้าปัดเครื่องวัด"</span>
+    </p>
+
+    <p>จากการพยายามแกะรอยและไล่ต้อนหาเหตุผล ผมพบข้อสรุปที่สำคัญมากข้อหนึ่งคือ:</p>
+
+    <div class="summary-box">
+      <span class="keyword" style="color: #feca57">Design Pattern Insight:</span><br />
+      <strong>สมการนี้ไม่ใช่ <span class="string">"กฎของธรรมชาติ"</span> ที่เราไปขุดค้นเจอ แต่เป็น <span class="concept">"การออกแบบโครงสร้างข้อมูลทางคณิตศาสตร์" (Design Pattern)</span> โดยเฉพาะการจงใจนิยามหน้าตาของตัวดำเนินการ $\hat{A}$ ให้ทำงานสอดคล้องกับผลการทดลองจริงในห้องแล็บ</strong>
+    </div>
+
+    <p>เงื่อนไขทางกายภาพจากผลการทดลองที่บังคับให้เราต้องออกแบบคณิตศาสตร์หน้าตาแบบนี้ มีอยู่ 2 ข้อหลักๆ ครับ:</p>
+
+    <ol>
+      <li>
+        <span class="keyword">สถานะต้องมีสมบัติความเป็นคลื่น:</span> กล่าวคือ สามารถรวมกันและแทรกสอดกันได้ทั้งขนาด
+        <span class="comment">(Amplitude)</span> และมุมเฟส <span class="comment">(Phase)</span>
+        เงื่อนไขนี้บีบบังคับให้สถานะต้องอยู่ในรูปของเวกเตอร์ และสเกลาร์ที่ใช้ทำ
+        Linear Combination ต้องเป็นจำนวนเชิงซ้อน ($\mathbb{C}$)
+      </li>
+      <li>
+        <span class="keyword">ความสามารถในการวัดซ้ำ (Reproducibility ของสถานะฐาน):</span>
+        ในการวัดแนวแกนหนึ่งๆ จะต้องมีสถานะพื้นฐาน
+        <span class="comment">(Basis States / Eigenstates ที่ไม่ใช่สถานะทับซ้อนในแกนนั้น)</span>
+        ซึ่งเมื่อผ่านเครื่องมือวัดไปแล้วครั้งหนึ่ง หากนำมาวัดซ้ำในแนวแกนเดิมทันที สถานะนั้นจะต้องไม่เปลี่ยนแปลงและให้ผลการวัดเดิม 100%
+      </li>
+    </ol>
+
+    <hr />
+
+    <h2>⚠️ จุดตายของคำอธิบายแบบตำราทั่วไป <span class="comment">(The Logic Leap)</span></h2>
+
+    <p>
+      ตอนแรกที่ผมอ่านคำอธิบายตามตำรา มันมักจะเริ่มต้นด้วยการยกเงื่อนไขข้อที่ 2 มาอ้างว่า นี่ไง! เพราะต้องการให้สถานะหลังวัดไม่เปลี่ยนแปลง เราถึงเอาสมการ Eigenvalue มาใช้!
+    </p>
+
+    <p>
+      ในวิชาพีชคณิตเชิงเส้น สมการ Eigenvalue บอกเราว่า สำหรับเมทริกซ์ $\mathbf{A}$ ขนาด $n \times n$
+      (ที่มีสมบัติสมบูรณ์อย่าง Normal หรือ Hermitian Matrix) จะมีเวกเตอร์ฐาน $\vec{v}_i$ ขนาด $n \times 1$ อยู่ $n$ ตัว ที่ทำให้:
+    </p>
+
+    <div class="equation-box">
+      $$\mathbf{A}\vec{v}_i = \lambda_i \vec{v}_i$$
+    </div>
+
+    <p>
+      สมการนี้แปลความหมายทางเรขาคณิตได้ว่า ถ้านำเมทริกซ์ $\mathbf{A}$ ไปคูณกับ Eigenvector $\vec{v}_i$
+      เวกเตอร์ผลลัพธ์จะไม่เปลี่ยนทิศทางเลย แต่จะถูกยืดหรือหดความยาวไปเป็น $\lambda_i$ เท่า (กรณี $\lambda_i \in \mathbb{R}$)
+    </p>
+
+    <p>
+      อ่านมาถึงตรงนี้ ผมก็ร้อง <span class="string">"เอ๊ะ!"</span> ทันที...<br />
+      ถ้าเราเหมาเอาดื้อๆ ว่า <span class="string">"สถานะหลังการวัด"</span> คือเวกเตอร์ผลลัพธ์ $\mathbf{A}\vec{v}_i$
+      งั้นสถานะมันก็ไม่คงที่น่ะสิ! เพราะความยาวของเวกเตอร์เปลี่ยนไปเป็น $\lambda_i$ เท่า
+      ถ้านำไปวัดซ้ำอีกครั้ง ($\mathbf{A}^2\vec{v}_i$) ขนาดของมันมิยิ่งถูกยืดออกเป็น $\lambda_i^2\vec{v}_i$ หรือ?
+      (และที่แย่กว่านั้น ถ้าผลการวัด $\lambda_i = 0$ เวกเตอร์สถานะหลังวัดมิกลายเป็นเวกเตอร์ศูนย์ $\mathbf{0}$ คืออนุภาคหายสาบสูญไปจากจักรวาลเลยหรือ?)
+      มันต้องมีอะไรผิดปกติในการตีความตรงนี้แน่ๆ!
+    </p>
+
+    <p>
+      ยิ่งไปกว่านั้น ตำราฟิสิกส์เกือบทุกเล่มจะรีบสรุปต่อทันทีว่า
+      <span class="string">"เนื่องจาก $\lambda_i$ คือค่าที่อ่านได้จากการวัดในโลกความจริง ดังนั้น $\lambda_i$ จึงต้องเป็นจำนวนจริง ($\mathbb{R}$)"</span>
+      แล้วก็ร่ายยาวพิสูจน์ทางคณิตศาสตร์ว่า เพื่อให้ $\lambda_i \in \mathbb{R}$ เมทริกซ์ $\mathbf{A}$ จะต้องเป็นเมทริกซ์เฮอร์มิเชียน
+      <span class="comment">(Hermitian: $\mathbf{A}^\dagger = \mathbf{A}$)</span><br />
+      <span class="comment">(Trivia: แม้แต่ตอนผมถกเรื่องนี้กับ AI พอพูดถึงตัวดำเนินการทีไร มันก็จะคอยถามคะยั้นคะยออยู่เรื่อยว่า "คุณอยากดูการพิสูจน์ว่าทำไม Hermitian Matrix ถึงมี Eigenvalue เป็นจำนวนจริงไหม?" แสดงว่าตำราส่วนใหญ่ที่ใช้เทรนโมเดลฝังหัวเรื่องนี้มาหนักมาก จน AI มี Bias กับลำดับการอธิบายแบบนี้สุดๆ)</span>
+    </p>
+
+    <div class="summary-box">
+      <span class="keyword" style="color: #feca57">คำถามหลัก:</span><br />
+      <strong>ทำไมตัวคูณยืดขนาดเวกเตอร์ ($\lambda_i$) ถึงกลายมาเป็นค่าที่อ่านได้บนหน้าปัดเครื่องมือวัด? สะพานเชื่อมทางตรรกะระหว่างคณิตศาสตร์กับฟิสิกส์มันแอบซ่อนอยู่ตรงไหนกันแน่?</strong>
+    </div>
+
+    <p>เรามาแกะรอยกันทีละประเด็นครับ</p>
+
+    <hr />
+
+    <h2>🔍 ประเด็นที่ 1: สถานะควอนตัมไม่ใช่ "เวกเตอร์" แต่เป็น "รังสี <span class="comment">(Ray)</span>"</h2>
+
+    <p>
+      ทำไมการคูณด้วย $\lambda_i$ ถึงถือว่าสถานะไม่เปลี่ยน? คำตอบแรกอยู่ที่โครงสร้างข้อมูลที่แท้จริงของสถานะควอนตัมครับ
+    </p>
+
+    <p>
+      ในทางฟิสิกส์ สถานะควอนตัมไม่ได้ถูกเก็บอยู่ในเวกเตอร์ทั้งหมด แต่ถูกเก็บอยู่ใน
+      <span class="concept">"ทิศทางของเวกเตอร์"</span> เพียงอย่างเดียว
+      โดยไม่สนใจขนาดหรือมุมเฟสรวม ซึ่งนักฟิสิกส์เรียกว่า
+      <span class="keyword">"รังสี" (Ray)</span>
+    </p>
+
+    <p>
+      ในปริภูมิเวกเตอร์เชิงซ้อน เวกเตอร์สองตัวที่ต่างกันแค่การคูณด้วย scalar เชิงซ้อนที่ไม่ใช่ศูนย์ถือว่าเป็นทิศทางเดียวกัน
+      อยากให้ทุกท่านลองนึกถึง <a href="Carton_Spinor.html">Cartan's Spinor</a> $\begin{pmatrix} \alpha \\ \beta \end{pmatrix}$ ที่ทิศทางของลูกศรในอวกาศ 3 มิติ
+      ขึ้นอยู่กับอัตราส่วน $\alpha/\beta$ เท่านั้น โดยไม่ขึ้นกับขนาดรวม
+      แปลว่าถ้าเรานำสเกลาร์จำนวนเชิงซ้อนที่ไม่ใช่ศูนย์ $c \in \mathbb{C} \setminus \{0\}$ คูณเข้าไปทั้งก้อน กลายเป็น $\begin{pmatrix} c\alpha \\ c\beta \end{pmatrix}$
+      อัตราส่วน $(c\alpha)/(c\beta) = \alpha/\beta$ ก็ยังคงเท่าเดิมเป๊ะ
+    </p>
+
+    <p>
+      นั่นหมายความว่า เวกเตอร์ $\vert \psi \rangle$ และ $c \vert \psi \rangle$
+      (หรือ $\lambda \vert \psi \rangle$ เมื่อ $\lambda \neq 0$) คือตัวแทนของ
+      <span class="concept">สถานะทางควอนตัมเดียวกัน 100%</span>
+    </p>
+
+    <p>
+      ดังนั้น หากกล่าวอย่างเคร่งครัดตามหลักคณิตศาสตร์ สถานะทางควอนตัมไม่ได้อาศัยอยู่ในปริภูมิฮิลเบิร์ต $\mathcal{H}$ ตรงๆ
+      แต่อาศัยอยู่ใน <span class="keyword">ปริภูมิโปรเจ็กทีฟฮิลเบิร์ต (Projective Hilbert Space: $\mathbb{P}\mathcal{H}$)</span>
+      ซึ่งเขียนเป็นสัญลักษณ์ทางทฤษฎีเซตได้ว่า:
+    </p>
+
+    <div class="equation-box">
+      $$\mathbb{P}\mathcal{H} = (\mathcal{H} \setminus \{\mathbf{0}\}) / \mathbb{C}^\times$$
+    </div>
+
+    <p>
+      ความหมายของสมการนี้คือ เราเริ่มต้นจากปริภูมิฮิลเบิร์ต $\mathcal{H}$ ที่คัดเอาเวกเตอร์ศูนย์ $\{\mathbf{0}\}$ ทิ้งไปก่อน
+      (เพราะเวกเตอร์ศูนย์ไม่มีทิศทาง) จากนั้นจึงทำการยุบรวม (Quotient $/$) โดยถือว่าเวกเตอร์ใดๆ
+      ที่ต่างกันแค่การคูณด้วยสเกลาร์เชิงซ้อนที่ไม่ใช่ศูนย์ ($c \in \mathbb{C}^\times \equiv \mathbb{C} \setminus \{0\}$)
+      คือจุดเดียวกัน <span class="comment">(Equivalence Class เดียวกัน)</span>
+      การที่เราบังคับให้เวกเตอร์มีความยาวเท่ากับ 1 ($\langle\psi\vert\psi\rangle = 1$)
+      เป็นเพียงการเลือกตัวแทนมาตรฐาน <span class="comment">(Gauge Fixing)</span> บนรังสีเส้นนั้นมาคำนวณความน่าจะเป็นให้สะดวกขึ้นเท่านั้นเอง
+    </p>
+
+    <!-- ลิงก์ตอนที่ 2 ปิดไว้ชั่วคราวระหว่างรออัปโหลด -->
+    <div class="nav-box" style="justify-content: center;">
+      <span style="color: #888; font-style: italic;">(ตอนที่ 2: อยู่ระหว่างการจัดเตรียมเนื้อหา)</span>
+    </div>
+  </body>
+</html>
