@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>การสร้าง Pauli Matrices จากรากฐาน (First Principles)</title>
+
+    <!-- KaTeX สำหรับคอมไพล์สมการคณิตศาสตร์และฟิสิกส์ -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+      onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });"
+    ></script>
+
+    <!-- CSS Theme: Dark Mode Syntax Highlighting -->
+    <style>
+      :root {
+        --bg-color: #1e1e1e;
+        --text-color: #d4d4d4;
+        --keyword: #c586c0; /* สีม่วง สำหรับคีย์เวิร์ดสำคัญ */
+        --concept: #4fc1ff; /* สีฟ้าสว่าง สำหรับคอนเซปต์หลัก */
+        --string: #ce9178; /* สีส้ม สำหรับข้อความในเครื่องหมายคำพูด */
+        --comment: #6a9955; /* สีเขียว สำหรับคำอธิบายหรือวงเล็บ */
+        --heading: #569cd6; /* สีฟ้าเข้ม สำหรับหัวข้อ */
+        --highlight-bg: #2d2d2d;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.8;
+        padding: 40px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        color: var(--heading);
+        border-bottom: 1px solid #444;
+        padding-bottom: 10px;
+        margin-top: 40px;
+      }
+
+      h1 {
+        font-size: 2.2em;
+      }
+      h2 {
+        font-size: 1.7em;
+      }
+      h3 {
+        font-size: 1.3em;
+        color: #4ec9b0;
+        border-bottom: none;
+      }
+
+      p {
+        margin-bottom: 16px;
+      }
+
+      ul,
+      ol {
+        background: var(--highlight-bg);
+        padding: 20px 20px 20px 50px;
+        border-radius: 8px;
+        border-left: 4px solid var(--keyword);
+        margin: 20px 0;
+      }
+
+      li {
+        margin-bottom: 12px;
+      }
+
+      /* Syntax Highlight Classes */
+      .keyword {
+        color: var(--keyword);
+        font-weight: bold;
+      }
+      .concept {
+        color: var(--concept);
+        font-weight: bold;
+      }
+      .string {
+        color: var(--string);
+      }
+      .comment {
+        color: var(--comment);
+        font-style: italic;
+      }
+
+      .equation-box {
+        text-align: center;
+        margin: 24px 0;
+        padding: 10px;
+        background: #252526;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+
+      .summary-box {
+        background-color: #2b3a42;
+        border-left: 4px solid var(--concept);
+        padding: 20px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .nav-box {
+        background-color: #252526;
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      a {
+        color: var(--concept);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--concept);
+      }
+      a:hover {
+        color: #79d4ff;
+        border-bottom: 1px solid #79d4ff;
+      }
+
+      details.callout-box {
+        background-color: var(--highlight-bg);
+        border: 1px solid #444;
+        border-left: 4px solid #4ec9b0;
+        border-radius: 6px;
+        padding: 14px 18px;
+        margin: 20px 0;
+      }
+
+      details.callout-box summary {
+        cursor: pointer;
+        font-weight: bold;
+        color: #4ec9b0;
+        outline: none;
+      }
+
+      details.callout-box .callout-content {
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px dashed #444;
+        color: #cccccc;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px solid #444;
+        margin: 40px 0;
+      }
+
+      a {
+        color: var(--concept);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--concept);
+      }
+      a:hover {
+        color: #79d4ff;
+        border-bottom: 1px solid #79d4ff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      🧭 การสร้าง Pauli Matrices จากรากฐาน <span class="comment">(First Principles)</span>
+    </h1>
+
+    <p>
+      บันทึกการสืบย้อนและประกอบสร้างเมทริกซ์เพาลี ($\hat{\sigma}_x, \hat{\sigma}_y, \hat{\sigma}_z$)
+      โดยเริ่มจากผลการทดลอง Stern-Gerlach ในห้องแล็บ สู่การสร้างสถานะและ Spectral Decomposition
+      โดยไม่ต้องยกเป็นสูตรสำเร็จรูปขึ้นมาลอยๆ
+    </p>
+
+    <hr />
+
+    <h3>1. ข้อมูลดิบจากการวัด <span class="comment">(The Observables & Eigenvalues)</span></h3>
+    <p>
+      <strong class="keyword">ผลการทดลอง:</strong> เมื่อยิงอิเล็กตรอนผ่านเครื่อง Stern-Gerlach แกน Z เราพบว่ามีจุดปรากฏบนฉากรับเพียง 2 จุดเท่านั้น ไม่มีตำแหน่งอื่นเลย
+    </p>
+    <p>
+      <strong class="concept">คณิตศาสตร์:</strong> ตำแหน่งบนฉากคือปริมาณทางกายภาพที่เราวัดได้ (Observables) เมื่อเราดึงค่าคงที่ออกไป เราจะได้ตัวเลขที่เป็นผลลัพธ์ของการวัดเพียง 2 ค่าที่แน่นอน ให้เป็น $\lambda_\uparrow = +1 \in \mathbb{R}$ และ $\lambda_\downarrow = -1 \in \mathbb{R}$ (ค่าเหล่านี้คือ <span class="keyword">Eigenvalues</span>)
+    </p>
+
+    <hr />
+
+    <h3>2. กำเนิดปริภูมิและเวกเตอร์สถานะ <span class="comment">(State Space & Eigenvectors)</span></h3>
+    <p>
+      <strong class="keyword">ผลการทดลอง:</strong> การที่ได้ผลลัพธ์แยกกัน 2 จุดชัดเจน (Mutually Exclusive) บังคับว่าระบบนี้มีสถานะที่แน่นอนเพียง 2 สถานะ
+    </p>
+    <p>
+      <strong class="concept">คณิตศาสตร์:</strong> ปริภูมิฮิลเบิร์ตมีมิติ $\dim \mathcal{H} = 2$<br />
+      เราจะนิยามเวกเตอร์สถานะเชิงนามธรรม (Abstract state vectors) เพื่อมารองรับค่า $\lambda_\uparrow$ และ $\lambda_\downarrow$:
+    </p>
+    <ul>
+      <li>ให้ $\vert \uparrow_z \rangle$ เป็นสถานะที่วัดแล้วได้ค่า $\lambda_\uparrow = +1$</li>
+      <li>ให้ $\vert \downarrow_z \rangle$ เป็นสถานะที่วัดแล้วได้ค่า $\lambda_\downarrow = -1$</li>
+    </ul>
+    <p>
+      สองสถานะนี้แยกแยะได้ 100% ไม่มีทางสับสนกัน แปลว่าความน่าจะเป็นที่จะพบอีกสถานะในอีกสถานะมีค่าเป็นศูนย์ ดังนั้นเวกเตอร์ต้องตั้งฉากกันสมบูรณ์:
+    </p>
+    <div class="equation-box">
+      $$\langle \uparrow_z \vert \downarrow_z \rangle = 0$$
+    </div>
+
+    <hr />
+
+    <h3>3. กำเนิดสมการค่าเฉพาะ <span class="comment">(The Eigenvalue Equation)</span></h3>
+    <p>
+      <strong class="keyword">ผลการทดลอง (การวัดซ้ำ):</strong> ถ้านำอิเล็กตรอนที่เพิ่งวัดผ่านเครื่องแรกได้ค่า "+1" ไปยิงเข้าเครื่อง Stern-Gerlach แกน Z ตัวที่สอง มันจะพุ่งไปที่จุด "+1" เสมอแบบ 100% (Reproducibility)
+    </p>
+    <p>
+      <strong class="concept">คณิตศาสตร์:</strong> เครื่องมือวัดในทางคณิตศาสตร์คือตัวดำเนินการ (Operator $\hat{\sigma}_z$) เพื่อให้สอดคล้องกับผลการวัดซ้ำ เมื่อ $\hat{\sigma}_z$ กระทำกับสถานะที่แน่นอน (เช่น $\vert \uparrow_z \rangle$) มันจะต้อง <strong class="string">"ดึงตัวเลขผลการวัด (Eigenvalue) ออกมา โดยที่โครงสร้างของเวกเตอร์สถานะเดิมต้องไม่เปลี่ยนรูปไปเลย"</strong> เพื่อให้การวัดครั้งต่อๆ ไปยังคงได้เวกเตอร์ตัวเดิมและค่าเดิม
+    </p>
+    <p>นี่คือรากฐาน (Root cause) ว่าทำไมสมการจึงต้องอยู่ในรูปแบบนี้:</p>
+    <div class="equation-box">
+      $$\hat{\sigma}_z \vert \uparrow_z \rangle = \lambda_\uparrow \vert \uparrow_z \rangle$$
+    </div>
+    <div class="equation-box">
+      $$\hat{\sigma}_z \vert \downarrow_z \rangle = \lambda_\downarrow \vert \downarrow_z \rangle$$
+    </div>
+    <p class="comment">
+      (และเนื่องจาก $\lambda$ ต้องเป็นค่าที่วัดได้จริงทางกายภาพ ($\lambda_\uparrow, \lambda_\downarrow \in \mathbb{R}$) จึงเป็นข้อบังคับตามมาว่าตัวดำเนินการนี้ต้องเป็น Hermitian operator $\hat{\sigma}_z = \hat{\sigma}_z^\dagger$ ในเวลาต่อมา)
+    </p>
+
+    <hr />
+
+    <h3>4. การประกอบเมทริกซ์และการเลือกฐาน <span class="comment">(Operator Construction & Basis Choice)</span></h3>
+    <p>
+      จากเงื่อนไขในข้อ 3 เราสามารถประกอบตัวดำเนินการ $\hat{\sigma}_z$ ได้จากผลรวมของการฉายภาพ (Spectral Decomposition):
+    </p>
+    <div class="equation-box">
+      $$\hat{\sigma}_z \equiv \lambda_\uparrow \vert \uparrow_z \rangle \langle \uparrow_z \vert + \lambda_\downarrow \vert \downarrow_z \rangle \langle \downarrow_z \vert$$
+    </div>
+
+    <details class="callout-box">
+      <summary>พิสูจน์ความสอดคล้องด้วยสมบัติความตั้งฉาก (Orthogonality)</summary>
+      <div class="callout-content">
+        <p>การประกอบตัวดำเนินการแบบ Spectral Decomposition นี้รับประกันสมการค่าเฉพาะ เนื่องจากเมื่อนำ $\hat{\sigma}_z$ ไปกระทำกับสถานะฐาน:</p>
+        <p><strong>กระทำกับสถานะขึ้น:</strong></p>
+        <div class="equation-box">
+          $$\hat{\sigma}_z \vert \uparrow_z \rangle = \lambda_\uparrow \vert \uparrow_z \rangle \underbrace{\langle \uparrow_z \vert \uparrow_z \rangle}_{= 1} + \lambda_\downarrow \vert \downarrow_z \rangle \underbrace{\langle \downarrow_z \vert \uparrow_z \rangle}_{= 0} = \lambda_\uparrow \vert \uparrow_z \rangle$$
+        </div>
+        <p><strong>กระทำกับสถานะลง:</strong></p>
+        <div class="equation-box">
+          $$\hat{\sigma}_z \vert \downarrow_z \rangle = \lambda_\uparrow \vert \uparrow_z \rangle \underbrace{\langle \uparrow_z \vert \downarrow_z \rangle}_{= 0} + \lambda_\downarrow \vert \downarrow_z \rangle \underbrace{\langle \downarrow_z \vert \downarrow_z \rangle}_{= 1} = \lambda_\downarrow \vert \downarrow_z \rangle$$
+        </div>
+        <p>ผลลัพธ์นี้เป็นจริงได้เพราะสถานะถูกเตรียมไว้อย่างสมบูรณ์แบบคือ $\langle \uparrow_z \vert \uparrow_z \rangle = \langle \downarrow_z \vert \downarrow_z \rangle = 1$ (Normalized) และแยกขาดจากกันเด็ดขาด $\langle \downarrow_z \vert \uparrow_z \rangle = \langle \uparrow_z \vert \downarrow_z \rangle = 0$ (Orthogonal)</p>
+      </div>
+    </details>
+
+    <p><strong class="keyword">การกำหนดฐาน (Arbitrary Choice):</strong></p>
+    <p>
+      ถึงตรงนี้เราเพิ่งจะมากำหนดหน้าตาที่แท้จริงให้กับเวกเตอร์ $\vert \uparrow_z \rangle$ และ $\vert \downarrow_z \rangle$ ในปริภูมิ $\mathbb{C}^2$ ซึ่งในทางฟิสิกส์เราจะ "สุ่มเลือก" (Arbitrary) เวกเตอร์คู่ไหนที่ตั้งฉากกันก็ได้ แต่เพื่อความสะดวกสูงสุด เราจะจับคู่มันเข้ากับฐานมาตรฐาน (Standard basis) ซึ่งสอดคล้องกับการวางตัวเป็นขั้วเหนือ-ใต้บนเรขาคณิตของ Bloch sphere และโครงสร้าง Spinor ของ Cartan:
+    </p>
+    <div class="equation-box">
+      $$\vert \uparrow_z \rangle = \begin{pmatrix} 1 \\ 0 \end{pmatrix}, \quad \vert \downarrow_z \rangle = \begin{pmatrix} 0 \\ 1 \end{pmatrix}$$
+    </div>
+    <p>เมื่อแทนค่าคอลัมน์เวกเตอร์และโรว์เวกเตอร์ (Dual space) ลงในตัวดำเนินการ:</p>
+    <div class="equation-box">
+      $$\hat{\sigma}_z = (+1) \begin{pmatrix} 1 \\ 0 \end{pmatrix} \begin{pmatrix} 1 & 0 \end{pmatrix} + (-1) \begin{pmatrix} 0 \\ 1 \end{pmatrix} \begin{pmatrix} 0 & 1 \end{pmatrix}$$
+    </div>
+    <div class="equation-box">
+      $$\hat{\sigma}_z = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix} + \begin{pmatrix} 0 & 0 \\ 0 & -1 \end{pmatrix} = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix}$$
+    </div>
+
+    <hr />
+
+    <h3>5. ความไม่แน่นอนสัมบูรณ์ <span class="comment">(Maximum Incompatibility)</span></h3>
+    <p>
+      <strong class="keyword">ผลการทดลอง:</strong> หากเราเตรียมอิเล็กตรอนให้อยู่ในสถานะที่แน่นอนของแกน Z (เช่น $\vert \uparrow_z \rangle$) แล้วนำไปยิงผ่านเครื่อง Stern-Gerlach ที่ตั้งในแนวแกน X หรือแกน Y ผลลัพธ์ที่ได้จะกลายเป็นการสุ่มสมบูรณ์ คือออก "ขึ้น" 50% และ "ลง" 50% เสมอ
+    </p>
+    <p>
+      <strong class="concept">คณิตศาสตร์:</strong> สถานะที่แน่นอนของแกน Z เมื่อถูกฉายภาพ (Project) ลงบนฐานการวัดของระนาบ XY ใดๆ จะต้องมีความน่าจะเป็นเท่ากับ $\frac{1}{2}$
+    </p>
+    <p>
+      กำหนดให้เวกเตอร์สถานะในระนาบ XY คือ $\vert \uparrow_{xy} \rangle = \begin{pmatrix} \alpha \\ \beta \end{pmatrix} \in \mathbb{C}^2$
+    </p>
+    <p>
+      จากสมการความน่าจะเป็น $P = \vert \langle \text{basis} \vert \text{state} \rangle \vert^2$ เมื่อนำสถานะ $\vert \uparrow_z \rangle$ ไปวัดในฐาน $\langle \uparrow_{xy} \vert$ จะได้:
+    </p>
+    <div class="equation-box">
+      $$P(\uparrow_{xy}) = \left\vert \langle \uparrow_{xy} \vert \uparrow_z \rangle \right\vert^2 = \left\vert \begin{pmatrix} \alpha^* & \beta^* \end{pmatrix} \begin{pmatrix} 1 \\ 0 \end{pmatrix} \right\vert^2 = \vert \alpha \vert^2 = \frac{1}{2}$$
+    </div>
+    <p class="comment">(ทำนองเดียวกัน หากนำสถานะ $\vert \downarrow_z \rangle$ ไปวัด จะได้ $\vert \beta \vert^2 = \frac{1}{2}$)</p>
+    <p>
+      แปลว่าขนาด (Magnitude) ของ $\alpha$ และ $\beta$ ต้องเป็น $\frac{1}{\sqrt{2}}$ ส่วนเฟส (Phase) จะเป็นจำนวนเชิงซ้อนใดๆ ก็ได้ เมื่อเราดึง Global phase ทิ้งไป จะเหลือเพียงความต่างเฟสสัมพัทธ์ (Relative phase) $e^{i\phi}$:
+    </p>
+    <div class="equation-box">
+      $$\vert \uparrow_{xy} \rangle = \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ e^{i\phi} \end{pmatrix}, \quad \vert \downarrow_{xy} \rangle = \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ -e^{i\phi} \end{pmatrix}$$
+    </div>
+    <p class="comment">(เวกเตอร์ $\vert \downarrow_{xy} \rangle$ ได้มาจากข้อบังคับว่ามันต้องตั้งฉากกับสถานะขึ้น $\langle \uparrow_{xy} \vert \downarrow_{xy} \rangle = 0$)</p>
+
+    <hr />
+
+    <h3>6. การกำหนดแกน X และตัวดำเนินการ $\hat{\sigma}_x$ <span class="comment">(Fixing the X-Axis)</span></h3>
+    <p>
+      <strong class="keyword">การกำหนดฐาน (Arbitrary Choice):</strong><br />
+      ระนาบ XY ในปริภูมิฮิลเบิร์ตยังไม่มีจุดอ้างอิง เราจึงต้อง "สุ่มเลือก" จุดเริ่มต้น (Reference axis) โดยกำหนดให้แกน X คือแกนที่<strong>ไม่มีความต่างเฟส</strong> ($\phi_x = 0 \implies e^{i(0)} = 1$)
+    </p>
+    <div class="equation-box">
+      $$\vert \uparrow_x \rangle = \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ 1 \end{pmatrix}, \quad \vert \downarrow_x \rangle = \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ -1 \end{pmatrix}$$
+    </div>
+    <p>
+      <strong class="concept">การประกอบเมทริกซ์:</strong><br />
+      เราประกอบตัวดำเนินการ $\hat{\sigma}_x$ ด้วยวิธี Spectral Decomposition ชุดเดียวกับแกน Z โดยยึดค่าที่วัดได้จริง $\lambda_\uparrow = +1$ และ $\lambda_\downarrow = -1$:
+    </p>
+    <div class="equation-box">
+      $$\hat{\sigma}_x \equiv \lambda_\uparrow \vert \uparrow_x \rangle \langle \uparrow_x \vert + \lambda_\downarrow \vert \downarrow_x \rangle \langle \downarrow_x \vert$$
+    </div>
+    <div class="equation-box">
+      $$\hat{\sigma}_x = (+1) \left[ \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ 1 \end{pmatrix} \frac{1}{\sqrt{2}} \begin{pmatrix} 1 & 1 \end{pmatrix} \right] + (-1) \left[ \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ -1 \end{pmatrix} \frac{1}{\sqrt{2}} \begin{pmatrix} 1 & -1 \end{pmatrix} \right]$$
+    </div>
+    <div class="equation-box">
+      $$\hat{\sigma}_x = \frac{1}{2} \begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix} - \frac{1}{2} \begin{pmatrix} 1 & -1 \\ -1 & 1 \end{pmatrix} = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$$
+    </div>
+
+    <hr />
+
+    <h3>7. การกำหนดแกน Y และตัวดำเนินการ $\hat{\sigma}_y$ <span class="comment">(Mutually Unbiased Bases)</span></h3>
+    <p>
+      <strong class="keyword">ผลการทดลอง:</strong> หากเราเตรียมอิเล็กตรอนในสถานะที่แน่นอนของแกน X ($\vert \uparrow_x \rangle$) แล้วนำไปวัดด้วยเครื่อง Stern-Gerlach แกน Y ผลลัพธ์ที่ได้ก็ยังคงสุ่มออกแบบ 50/50 เช่นกัน
+    </p>
+    <p>
+      <strong class="concept">คณิตศาสตร์:</strong> แกน X และ Y ต้องไม่เอนเอียงเข้าหากัน (Mutually Unbiased) นั่นคือ $P(\uparrow_y) = \vert \langle \uparrow_y \vert \uparrow_x \rangle \vert^2 = \frac{1}{2}$<br />
+      เงื่อนไขนี้บีบบังคับให้ความต่างเฟส $\phi$ ของแกน Y ต้องตั้งฉากในระนาบเชิงซ้อน ($\phi_y = \frac{\pi}{2} \implies e^{i(\pi/2)} = i$)
+    </p>
+    <div class="equation-box">
+      $$\vert \uparrow_y \rangle = \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ i \end{pmatrix}, \quad \vert \downarrow_y \rangle = \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ -i \end{pmatrix}$$
+    </div>
+    <p>
+      <strong class="concept">การประกอบเมทริกซ์:</strong><br />
+      ใช้วิธี Spectral Decomposition เดิมเป๊ะๆ กับเวกเตอร์ของแกน Y:
+    </p>
+    <div class="equation-box">
+      $$\hat{\sigma}_y \equiv \lambda_\uparrow \vert \uparrow_y \rangle \langle \uparrow_y \vert + \lambda_\downarrow \vert \downarrow_y \rangle \langle \downarrow_y \vert$$
+    </div>
+    <p class="comment">(ระวัง: ตอนทำ Dual space $\langle \text{Bra} \vert$ ต้องทำการ Conjugate เสมอ $i \to -i$)</p>
+    <div class="equation-box">
+      $$\hat{\sigma}_y = (+1) \left[ \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ i \end{pmatrix} \frac{1}{\sqrt{2}} \begin{pmatrix} 1 & -i \end{pmatrix} \right] + (-1) \left[ \frac{1}{\sqrt{2}} \begin{pmatrix} 1 \\ -i \end{pmatrix} \frac{1}{\sqrt{2}} \begin{pmatrix} 1 & i \end{pmatrix} \right]$$
+    </div>
+    <div class="equation-box">
+      $$\hat{\sigma}_y = \frac{1}{2} \begin{pmatrix} 1 & -i \\ i & 1 \end{pmatrix} - \frac{1}{2} \begin{pmatrix} 1 & i \\ -i & 1 \end{pmatrix} = \begin{pmatrix} 0 & -i \\ i & 0 \end{pmatrix}$$
+    </div>
+
+    <div class="summary-box">
+      <strong class="concept">บทสรุปแห่งความงดงาม:</strong><br />
+      Pauli Matrices ทั้งสามตัว $\hat{\sigma}_x, \hat{\sigma}_y, \hat{\sigma}_z$ ไม่ใช่ตัวเลขวิเศษที่คิดขึ้นมาลอยๆ แต่คือตัวแทนทางคณิตศาสตร์ที่ถูกบีบสร้างขึ้นมาจาก <strong>ผลการทดลองจริง</strong> และ <strong>สมการค่าเฉพาะ (Spectral Decomposition)</strong> โดยตรง!
+    </div>
+
+    <div class="nav-box">
+      <a href="Eigenvalue_Part2.html" style="font-weight: bold;">
+        ⬅ ย้อนกลับไป ตอนที่ 2: การประกอบร่างจาก Projector และค่าเฉพาะเชิงซ้อน
+      </a>
+    </div>
+  </body>
+</html>
