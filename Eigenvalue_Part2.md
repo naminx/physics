@@ -131,5 +131,5 @@ $$
 
 ---
 
-[⬅ ย้อนกลับไป ตอนที่ 1: สถานะควอนตัมในฐานะรังสีบน Projective Hilbert Space](Eigenvalue_Part1.html) | *(ตอนที่ 3: ติดตามได้เร็วๆ นี้)*
+[⬅ ย้อนกลับไป ตอนที่ 1: สถานะควอนตัมในฐานะรังสีบน Projective Hilbert Space](Eigenvalue_Part1.html) | [อ่านต่อ ตอนที่ 3: การไหลบน Projective Space, ทฤษฎีของ Sophus Lie และภาพเรขาคณิตบน Bloch Sphere ➔](Eigenvalue_Part3.html)
 
